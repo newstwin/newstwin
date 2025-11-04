@@ -23,4 +23,9 @@ public interface UserSubscriptionRepository extends JpaRepository<UserSubscripti
   @Modifying
   @Query("UPDATE UserSubscription us SET us.isActive = false WHERE us.member = :member")
   void deactivateAllByMember(@Param("member") Member member);
+  
+  // subscribeAll 최적화용 (회원 + 여러 카테고리 한번에 조회)
+  @Query("select us from UserSubscription us where us.member = :member and us.category.id in :categoryIds")
+  List<UserSubscription> findAllByMemberAndCategoryIdIn(@Param("member") Member member,
+      @Param("categoryIds") List<Long> categoryIds);
 }
