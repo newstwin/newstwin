@@ -2,6 +2,7 @@ package com.est.newstwin.repository;
 
 
 import com.est.newstwin.domain.Post;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,4 +33,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       Pageable pageable);
 
   List<Post> findByType(String type);
+
+  long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+  Page<Post> findByTypeIn(List<String> types, Pageable pageable);
 }

@@ -3,6 +3,7 @@ package com.est.newstwin.repository;
 import com.est.newstwin.domain.MailLog;
 import com.est.newstwin.domain.Member;
 import com.est.newstwin.domain.Post;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,7 @@ public interface MailLogRepository extends JpaRepository<MailLog, Long> {
 
   List<MailLog> findAllByPost_Type(String type);
 
-  // ✅ Post의 title과 type='mail'로 조회
   List<MailLog> findAllByPost_TitleAndPost_Type(String title, String type);
+
+  long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

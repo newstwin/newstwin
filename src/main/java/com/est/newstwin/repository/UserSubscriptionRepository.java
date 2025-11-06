@@ -3,6 +3,7 @@ package com.est.newstwin.repository;
 import com.est.newstwin.domain.Category;
 import com.est.newstwin.domain.Member;
 import com.est.newstwin.domain.UserSubscription;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +29,6 @@ public interface UserSubscriptionRepository extends JpaRepository<UserSubscripti
   @Query("select us from UserSubscription us where us.member = :member and us.category.id in :categoryIds")
   List<UserSubscription> findAllByMemberAndCategoryIdIn(@Param("member") Member member,
       @Param("categoryIds") List<Long> categoryIds);
+
+  long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

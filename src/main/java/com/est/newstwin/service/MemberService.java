@@ -99,20 +99,20 @@ public class MemberService {
     return MemberResponseDto.fromEntityWithCategories(member, activeCategories);
   }
 
-  public MemberResponseDto toggleSubscriptionStatus(Long memberId, Long categoryId) {
+  public MemberResponseDto toggleSubscriptionStatus(Long memberId, List<Long> categoryIds) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new RuntimeException("회원 없음"));
 
-    Category category = categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new RuntimeException("카테고리 없음"));
+    List<Category> categories = categoryRepository.findAllById(categoryIds);
 
-    UserSubscription subscription = userSubscriptionRepository.findByMemberAndCategory(member, category)
-        .orElseGet(() -> userSubscriptionRepository.save(
-            UserSubscription.create(member, category, false)
-        ));
-
-    subscription.setIsActive(!subscription.getIsActive());
-    userSubscriptionRepository.save(subscription);
+    for (Category category : categories) {
+      UserSubscription subscription = userSubscriptionRepository.findByMemberAndCategory(member, category)
+          .orElseGet(() -> userSubscriptionRepository.save(
+              UserSubscription.create(member, category, false)
+          ));
+      subscription.setIsActive(!subscription.getIsActive());
+      userSubscriptionRepository.save(subscription);
+    }
 
     List<Category> activeCategories = userSubscriptionRepository.findAllByMember(member).stream()
         .filter(UserSubscription::getIsActive)

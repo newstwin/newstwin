@@ -5,15 +5,19 @@ import com.est.newstwin.dto.api.PostRequestDto;
 import com.est.newstwin.dto.api.PostResponseDto;
 import com.est.newstwin.dto.member.MemberResponseDto;
 import com.est.newstwin.repository.MailLogRepository;
-import com.est.newstwin.repository.MemberRepository;
 import com.est.newstwin.repository.PostRepository;
-import com.est.newstwin.repository.UserSubscriptionRepository;
 import com.est.newstwin.service.AdminService;
 import com.est.newstwin.service.MailLogService;
 import com.est.newstwin.service.MemberService;
 import com.est.newstwin.service.PostService;
+import jakarta.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,20 +28,30 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequiredArgsConstructor
 public class AdminController {
   private final MemberService memberService;
   private final PostService postService;
-  private final AdminService dashboardService;
+  private final AdminService adminService;
   private final MailLogService mailLogService;
   private final MailLogRepository mailLogRepository;
+  private final PostRepository postRepository;
 
   @GetMapping("admin/users")
-  public String getMemberList(Model model) {
+  public String getMemberList(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              Model model) {
     List<MemberResponseDto> members = memberService.getAllMembers();
-    model.addAttribute("members", members);
+
+    int start = page * size;
+    int end = Math.min(start + size, members.size());
+    List<MemberResponseDto> paged = members.subList(start, end);
+    Page<MemberResponseDto> membersPage = new PageImpl<>(paged, PageRequest.of(page, size), members.size());
+    model.addAttribute("members", membersPage.getContent());
+    model.addAttribute("page", membersPage);
     return "admin/users";
   }
 
@@ -49,25 +63,42 @@ public class AdminController {
   }
 
   // 구독 상태 토글
-  @PatchMapping("/admin/users/{memberId}/subscription/{categoryId}")
+  @PatchMapping("/admin/users/{memberId}/subscriptions")
   @ResponseBody
-  public ResponseEntity<MemberResponseDto> toggleSubscription(
+  public ResponseEntity<MemberResponseDto> toggleSubscriptions(
       @PathVariable Long memberId,
-      @PathVariable Long categoryId) {
-    MemberResponseDto dto = memberService.toggleSubscriptionStatus(memberId, categoryId);
+      @RequestBody List<Long> categoryIds) {
+
+    MemberResponseDto dto = memberService.toggleSubscriptionStatus(memberId, categoryIds);
     return ResponseEntity.ok(dto);
   }
 
   //게시판 전체 조회
-  @GetMapping("admin/posts")
-  public String getPostList(Model model) {
-    List<PostResponseDto> posts = postService.getAllPost()
+  @GetMapping("/admin/posts")
+  public String getPostList(@RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size,
+                            @RequestParam(required = false) String type,
+                            Model model) {
+    List<PostResponseDto> allPosts = postService.getAllPost()
         .stream()
         .filter(post -> "news".equals(post.getType()) || "community".equals(post.getType()))
         .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
         .toList();
 
-    model.addAttribute("posts", posts);
+    // 2️⃣ type 필터가 지정되었을 경우, 해당 타입만 필터링
+    if (type != null && !type.isEmpty()) {
+      allPosts = allPosts.stream()
+          .filter(post -> type.equals(post.getType()))
+          .toList();
+    }
+
+    int start = page * size;
+    int end = Math.min(start + size, allPosts.size());
+    List<PostResponseDto> pagedPosts = allPosts.subList(start, end);
+    Page<PostResponseDto> postPage = new PageImpl<>(pagedPosts, PageRequest.of(page, size), allPosts.size());
+    model.addAttribute("posts", postPage.getContent());
+    model.addAttribute("page", postPage);
+    model.addAttribute("selectedType", type);
     return "admin/posts";
   }
 
@@ -111,13 +142,11 @@ public class AdminController {
 
   @GetMapping("/admin")
   public String dashboard(Model model) {
-    // 서비스에서 데이터 받아오기
-    long userCount = dashboardService.getUserCount();
-    long postCount = dashboardService.getPostCount();
-    long subscriptionCount = dashboardService.getSubscriptionCount();
-    long mailCount = dashboardService.getMailCount();
+    long userCount = adminService.getUserCount();
+    long postCount = adminService.getPostCount();
+    long subscriptionCount = adminService.getSubscriptionCount();
+    long mailCount = adminService.getMailCount();
 
-    // Thymeleaf에 전달
     model.addAttribute("userCount", userCount);
     model.addAttribute("postCount", postCount);
     model.addAttribute("subscriptionCount", subscriptionCount);
@@ -126,15 +155,34 @@ public class AdminController {
     return "admin/dashboard";
   }
 
+  @GetMapping("admin/dashboard/monthly-counts")
+  @ResponseBody
+  public Map<String, Object> getMonthlyCounts(@RequestParam int year) {
+    Map<String, Object> result = new HashMap<>();
+    result.put("months", List.of("1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"));
+    result.put("userCounts", adminService.getMonthlyCountsForMembers(year));
+    result.put("postCounts", adminService.getMonthlyCountsForPosts(year));
+    result.put("subscriberCounts", adminService.getMonthlyCountsForSubscribers(year));
+    result.put("mailCounts", adminService.getMonthlyCountsForMails(year));
+    return result;
+  }
+
   // 메일 로그 목록 페이지
   @GetMapping("/admin/mails")
-  public String getMailLogs(Model model) {
+  public String getMailLogs(@RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size,
+                            Model model) {
     List<MailLog> logs = mailLogService.getAllMailLogs()
         .stream()
         .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
         .toList();
 
-    model.addAttribute("mailLogs", logs);
+    int start = page * size;
+    int end = Math.min(start + size, logs.size());
+    List<MailLog> pagedLogs = logs.subList(start, end);
+    Page<MailLog> mailPage = new PageImpl<>(pagedLogs, PageRequest.of(page, size), logs.size());
+    model.addAttribute("mailLogs", pagedLogs);
+    model.addAttribute("page", mailPage);
     return "admin/mails";
   }
 
