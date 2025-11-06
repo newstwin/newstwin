@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   profiles:
     active: local
   application:
@@ -19,3 +21,7 @@ spring:
 jwt:
   secret: "m5fEIZP2NsnC5CFpKZxZ4dGhWQxqYGiWqkkuBRK7ChT4tf+b0mE+WbFqXvwJmT2Uo7nU6X2+E7Av0F3Q+YkM7A=="
   expiration-time: 3600000 # 1시간 (단위: ms)
+
+openai:
+  base-url: https://api.openai.com/v1
+  api-key: ${OPENAI_API_KEY}

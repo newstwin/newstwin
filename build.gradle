@@ -50,6 +50,14 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.25.67'
     implementation 'software.amazon.awssdk:auth:2.25.67'
     implementation 'software.amazon.awssdk:core:2.25.67'
+
+    // OpenAI Java SDK
+    implementation 'com.openai:openai-java-spring-boot-starter:4.7.1'
+
+
+    // JSON 파싱용 (응답 처리용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
 }
 
 tasks.named('test') {

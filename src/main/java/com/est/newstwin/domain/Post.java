@@ -1,5 +1,6 @@
 package com.est.newstwin.domain;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "post")
@@ -55,6 +57,9 @@ public class Post {
 
   @Column(nullable = false, columnDefinition = "TEXT")
   private String content;
+
+  @Column(columnDefinition = "TEXT")
+  private String analysisJson;
 
   private int count;
 
