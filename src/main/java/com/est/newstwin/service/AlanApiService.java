@@ -77,36 +77,23 @@ public class AlanApiService {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("당신은 한국 경제 뉴스를 요약하는 전문 분석 AI입니다.\n\n")
-                .append("다음 조건에 따라 뉴스를 검색하고 요약하세요:\n")
-                .append("1. 뉴스 발행일: **").append(today).append("에 실제로 발행된 기사만 포함** (이전 날짜 기사 제외)\n")
-                .append("2. 카테고리: '").append(category).append("'\n")
-                .append("3. 제외 조건: 제목 또는 URL에 아래 키워드가 포함된 뉴스는 제외합니다.\n");
+        sb.append("%s자에 발행된 '%s' 관련 주요 경제 뉴스를 5개 선정해주세요.\n"
+                        .formatted(today, category))
+                .append("각 뉴스는 기사 제목과 간단한 요약만 포함해주세요.\n")
+                .append("중복 기사, 광고성 기사, 블로그나 홍보성 글은 제외해주세요.\n");
 
-        if (excludeKeywords == null || excludeKeywords.isEmpty()) {
-            sb.append("   - 없음\n");
-        } else {
-            sb.append("   - ").append(String.join(", ", excludeKeywords)).append("\n");
+        if (excludeKeywords != null && !excludeKeywords.isEmpty()) {
+            sb.append("제외 키워드: ").append(String.join(", ", excludeKeywords)).append("\n");
         }
 
-        sb.append("\n4. **모든 뉴스 항목은 반드시 아래 형식을 따르세요 (URL은 반드시 포함되어야 함)**:\n")
-                .append("   - 번호. **[제목]** (출처: [뉴스 링크](https://...))\n")
-                .append("   - 내용: 약 150~200 tokens 분량으로 작성\n")
-                .append("   - 내용에는 **원인, 배경, 경제적 영향, 시장 반응** 등을 포함\n")
-                .append("   - 각 뉴스는 반드시 **고유한 URL**을 가져야 하며, URL이 없는 뉴스는 제외합니다.\n")
-                .append("   - URL이 누락된 경우, 그 뉴스 항목은 잘못된 형식으로 간주하고 새 뉴스를 대신 포함시키세요.\n")
-                .append("   - 중복 기사, 광고성 기사, 요약 중복 뉴스는 제외합니다.\n\n")
-
-                .append("5. 출력 예시:\n")
-                .append("1. **[삼성전자, AI 반도체 수출 호조]** (출처: [뉴스 링크](https://www.hankyung.com/article/...))\n")
-                .append("   - 내용: 반도체 수출 호조로 인해 수출액이 증가했고, 이는 한국 경기 회복세에 긍정적인 영향을 주었습니다.\n\n")
-
-                .append("이제 '").append(category)
-                .append("' 카테고리의 **").append(today)
-                .append("에 발행된 주요 경제 뉴스 5개를**, 위 형식에 맞춰 정리하세요.")
-                .append("\n\n 반드시 각 뉴스마다 [뉴스 링크](https://...) 형태의 실제 URL을 포함해야 합니다.");
+        sb.append("\n출력 형식 예시:\n")
+                .append("1. **[기사 제목]**\n")
+                .append("   - 요약: 한두 문장으로 핵심 내용을 작성\n\n")
+                .append("이 형식을 따라 5개의 뉴스를 작성해주세요.");
 
         return sb.toString();
     }
+
+
 
 }
