@@ -58,6 +58,10 @@ dependencies {
     // JSON 파싱용 (응답 처리용)
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 }
 
 tasks.named('test') {

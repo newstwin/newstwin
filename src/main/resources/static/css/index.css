@@ -1,0 +1,180 @@
+/* ===========================
+   Hero Section
+=========================== */
+.hero-section {
+    position: relative;
+    background: url('../images/hero-bg.jpg') center/cover no-repeat;
+    height: 45vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-section .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.hero-section h1 span {
+    color: #6dd5fa;
+}
+
+.hero-section .btn {
+    border-radius: 25px;
+    background: #ffffff;
+    color: #000;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.hero-section .btn:hover {
+    background: #6dd5fa;
+    color: #fff;
+}
+
+/* ===========================
+   Section Spacing
+=========================== */
+section {
+    padding-top: 7rem !important;
+    padding-bottom: 7rem !important;
+}
+
+.ai-category,
+.community-section,
+.popular-news {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+/* ===========================
+   뉴스 카드
+=========================== */
+.news-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    padding: 1rem;
+}
+
+.news-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.news-card img {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    height: 210px;
+    object-fit: cover;
+}
+
+/* ===========================
+   AI 카테고리
+=========================== */
+.ai-category {
+    background-color: #f8f9fa;
+    padding-top: 7rem !important;
+    padding-bottom: 7rem !important;
+}
+
+.ai-category h3 {
+    margin-bottom: 2rem;
+}
+
+.ai-category p {
+    margin-bottom: 3rem;
+    color: #6c757d;
+}
+
+.ai-category button {
+    border: none;
+    background: #ffffff;
+    color: #333;
+    border-radius: 25px;
+    padding: 0.9rem 2rem; /* 버튼 크기 살짝 확대 */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.ai-category button:hover {
+    background: linear-gradient(90deg, #6dd5fa, #2980b9);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ===========================
+   커뮤니티
+=========================== */
+.community-section li {
+    padding: 1.2rem 1.8rem;
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background-color 0.2s ease;
+}
+
+.community-section li:hover {
+    background-color: #f8f9fa;
+}
+
+.community-section li:last-child {
+    border-bottom: none;
+}
+
+/* ===========================
+   뉴스레터
+=========================== */
+.newsletter-section {
+    position: relative;
+    background: url('../images/newsletter-bg.jpg') center/cover no-repeat;
+    height: 45vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+}
+
+.newsletter-section .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* 구독 입력창 + 버튼 */
+.newsletter-form input {
+    border: none;
+    outline: none;
+    padding: 0.9rem 1.2rem;
+}
+
+.newsletter-form input::placeholder {
+    color: #ccc;
+}
+
+/* 구독하기 버튼 색상 통일 */
+.newsletter-form button {
+    background: #6dd5fa;
+    border: none;
+    color: #fff;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.newsletter-form button:hover {
+    background: #4aaee6;
+}
+
+/* ===========================
+   전체보기 링크 색상
+=========================== */
+.text-secondary.hover-dark {
+    color: #555 !important;
+    transition: color 0.2s ease;
+}
+
+.text-secondary.hover-dark:hover {
+    color: #000 !important;
+}

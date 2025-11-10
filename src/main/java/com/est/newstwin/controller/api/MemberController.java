@@ -81,4 +81,14 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success("사용 가능한 이메일입니다.", null));
     }
 
+    /**
+     * 이메일 존재 여부 확인 (뉴스레터 구독용)
+     */
+    @GetMapping("/exists")
+    public ApiResponse<Boolean> checkEmailExists(@RequestParam String email) {
+        boolean exists = memberRepository.findByEmail(email).isPresent();
+
+        return ApiResponse.success("이메일 존재 여부 확인", exists);
+    }
+
 }

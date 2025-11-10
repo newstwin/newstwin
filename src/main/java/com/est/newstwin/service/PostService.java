@@ -160,4 +160,37 @@ public class PostService {
     likeRepository.deleteAllByPostId(postId);
     postRepository.deleteById(postId);
   }
+
+
+  @Transactional(readOnly = true)
+  public List<PostSummaryDto> getTopPostsByTypeAndDate(String type, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+    List<Post> posts = postRepository.findTopByTypeAndCreatedAtBetween(type, start, end, pageable);
+    return posts.stream()
+            .map(post -> new PostSummaryDto(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getThumbnailUrl(),
+                    post.getCreatedAt(),
+                    post.getCount(),
+                    abbreviate(post.getContent(), 120)
+            ))
+            .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<PostSummaryDto> getTopPostsByType(String type, Pageable pageable) {
+    List<Post> posts = postRepository.findTopByType(type, pageable);
+    return posts.stream()
+            .map(post -> new PostSummaryDto(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getThumbnailUrl(),
+                    post.getCreatedAt(),
+                    post.getCount(),
+                    abbreviate(post.getContent(), 120)
+            ))
+            .collect(Collectors.toList());
+  }
+
+
 }

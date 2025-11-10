@@ -16,6 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let isEmailAvailable = false;
 
+    const params = new URLSearchParams(window.location.search);
+
+    // URL 파라미터로 전달된 이메일 자동 입력
+    const emailParam = params.get("email");
+    if (emailParam) {
+        emailInput.value = emailParam;
+    }
+
     // 🔹 비밀번호 표시/숨김 토글
     togglePasswordBtn.addEventListener("click", () => {
         const isHidden = passwordInput.type === "password";

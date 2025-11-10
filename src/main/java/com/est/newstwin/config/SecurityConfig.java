@@ -1,6 +1,8 @@
 package com.est.newstwin.config;
 
 import com.est.newstwin.config.jwt.JwtAuthenticationFilter;
+import com.est.newstwin.config.oauth2.CustomOAuth2UserService;
+import com.est.newstwin.config.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,7 +46,9 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
 
                         // 비로그인 사용자만 접근 가능 (로그인 상태면 접근 불가)
@@ -67,7 +74,9 @@ public class SecurityConfig {
                                 "/api/members/check-email", // 이메일 중복 확인 API
                                 "/api/chatgpt/**",
                                 "/api/alan/**",
-                                "/api/pipeline/**"
+                                "/api/pipeline/**",
+                                "api/home/**",
+                                "/api/members/exists"
                         ).permitAll()
 
                         // 좋아요/북마크 조회는 누구나 허용
@@ -101,6 +110,13 @@ public class SecurityConfig {
 
                         // 나머지 요청은 기본적으로 인증 필요
                         .anyRequest().authenticated()
+                )
+
+                // OAuth2 로그인 설정
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login") // 커스텀 로그인 페이지
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 삽입
