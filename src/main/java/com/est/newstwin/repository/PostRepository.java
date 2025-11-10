@@ -51,6 +51,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   List<Post> findByType(String type);
 
   long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
-
-  Page<Post> findByTypeIn(List<String> types, Pageable pageable);
 }
