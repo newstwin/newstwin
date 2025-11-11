@@ -24,7 +24,6 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -59,24 +58,28 @@ public class SecurityConfig {
 
                         // 인증 없이 접근 가능한 페이지
                         .requestMatchers(
-                                "/",                  // 홈
-                                "/news/**",           // 뉴스 관련 페이지
-                                "/feed",              // 뉴스 카테고리
-                                "/h2-console/**",     // H2 콘솔
-                                "/post/**"            // 뉴스 상세
+                                "/",                 // 홈
+                                "/verify",           // 이메일 인증 결과 페이지
+                                "/verify-info",      // 이메일 인증 안내 페이지
+                                "/news/**",          // 뉴스 관련 페이지
+                                "/feed",             // 뉴스 카테고리
+                                "/h2-console/**",    // H2 콘솔
+                                "/post/**"           // 뉴스 상세
                         ).permitAll()
 
-                        // 인증 없이 접근 가능한 API (운영 경로로 갱신)
+                        // 인증 없이 접근 가능한 API
                         .requestMatchers(
-                                "/api/auth/**",             // 로그인/로그아웃 API
-                                "/api/members/signup",      // 회원가입 API
-                                "/api/members/me",          // (개발용) 로그인 확인 API
-                                "/api/members/check-email", // 이메일 중복 확인 API
+                                "/api/auth/**",                // 로그인/로그아웃 API
+                                "/api/members/signup",         // 회원가입 API
+                                "/api/members/verify",         // API 방식 인증 (모바일/테스트용)
+                                "/api/members/resend-verification",
+                                "/api/members/me",             // (개발용) 로그인 확인 API
+                                "/api/members/check-email",    // 이메일 중복 확인 API
+                                "/api/members/exists",         // 이메일 존재 여부 확인
                                 "/api/chatgpt/**",
                                 "/api/alan/**",
                                 "/api/pipeline/**",
-                                "api/home/**",
-                                "/api/members/exists"
+                                "/api/home/**"                 // ← 누락됐던 슬래시 보정
                         ).permitAll()
 
                         // 좋아요/북마크 조회는 누구나 허용
@@ -101,12 +104,11 @@ public class SecurityConfig {
                         // 마이페이지는 로그인 필요
                         .requestMatchers("/mypage/**").authenticated()
 
-                        // 관리자 로그인은 누구나 접근 가능하지만,
-                        // 그 외 /admin/** 경로는 ROLE_ADMIN만 접근 가능
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-
                         // 관리자 수동 실행용, 관리자 전용
                         .requestMatchers("/api/scheduler/**").hasAuthority("ROLE_ADMIN")
+
+                        // 그 외 /admin/** 는 ROLE_ADMIN만 접근
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
                         // 나머지 요청은 기본적으로 인증 필요
                         .anyRequest().authenticated()
@@ -122,18 +124,18 @@ public class SecurityConfig {
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 삽입
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // 접근 거부 시 처리 (로그인된 사용자가 /login 접근 시 홈으로 리다이렉트)
+                // 접근 거부/미인증 처리
                 .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint((request, response, authException) -> {
-                      String uri = request.getRequestURI();
-                      if (uri.startsWith("/admin")) {
-                        response.sendRedirect("/admin/login");
-                      } else {
-                        response.sendRedirect("/login");
-                      }
-                    })
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String uri = request.getRequestURI();
+                            if (uri.startsWith("/admin")) {
+                                response.sendRedirect("/admin/login");
+                            } else {
+                                response.sendRedirect("/login");
+                            }
+                        })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.sendRedirect("/"); // 홈으로 이동
+                            response.sendRedirect("/");
                         })
                 );
 
@@ -141,9 +143,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
