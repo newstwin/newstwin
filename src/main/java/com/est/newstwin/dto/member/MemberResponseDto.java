@@ -62,6 +62,7 @@ public class MemberResponseDto {
         .email(member.getEmail())
         .role(member.getRole().name())
         .isActive(member.getIsActive())
+        .receiveEmail(member.getReceiveEmail())
         .categories(categoryNames)
         .categoryIds(categoryIds)
         .subscriptionStatus(categoryNames.isEmpty() ? "구독 없음" : "구독중")

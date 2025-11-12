@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/favicon.ico",
                                 "/webjars/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/unsubscribe"
                         ).permitAll()
 
                         // 비로그인 사용자만 접근 가능 (로그인 상태면 접근 불가)
@@ -83,7 +84,20 @@ public class SecurityConfig {
                                 "/api/home/**"                 // ← 누락됐던 슬래시 보정
                         ).permitAll()
 
-                        // 좋아요/북마크 조회는 누구나 허용
+                        //게시판 접근정책
+                        .requestMatchers(
+                                "/board",
+                                "/board/",
+                                "/board/{id:[0-9]+}"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/board/write",
+                                "/board/edit/**",
+                                "/board/delete/**"
+                        ).authenticated()
+
+                    // 좋아요/북마크 조회는 누구나 허용
                         .requestMatchers(HttpMethod.GET,
                                 "/api/posts/*/like",
                                 "/api/posts/*/like/count",

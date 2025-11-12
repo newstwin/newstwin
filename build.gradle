@@ -78,6 +78,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //Markdown HTML로 변환
+    implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 }
 
 tasks.named('test') {

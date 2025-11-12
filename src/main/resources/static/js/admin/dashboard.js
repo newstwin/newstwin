@@ -62,6 +62,11 @@ async function toggleStatus(el, type) {
       data = await response.json();
       el.textContent = data.subscriptionStatus;
       el.className = `badge px-3 py-2 cursor-pointer ${data.subscriptionStatus === '구독중' ? 'bg-success' : 'bg-secondary'}`;
+    } else if(type === 'receiveEmail') {
+      response = await fetch(`/admin/users/${memberId}/receive`, { method: 'PATCH' });
+      data = await response.json();
+      el.textContent = data.receiveEmail ? '수신' : '거부';
+      el.className = `badge px-3 py-2 cursor-pointer ${data.receiveEmail ? 'bg-success' : 'bg-secondary'}`;
     }
 
   } catch (err) {

@@ -4,6 +4,10 @@ import com.est.newstwin.domain.MailLog;
 import com.est.newstwin.domain.Member;
 import com.est.newstwin.domain.Post;
 import com.est.newstwin.repository.MailLogRepository;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
@@ -77,43 +81,41 @@ public class MailLogService {
   }
 
   public String buildHtmlNewsletter(Member member, String summary, List<Post> newsPosts) {
-    String unsubscribeLink = "http://localhost:8080/mypage/subscription";
+    String unsubscribeLink = String.format(
+        "http://localhost:8080/api/members/unsubscribe?memberId=%d", member.getId()
+    );
 
-    List<Post> distinctPosts = newsPosts.stream()
-        .collect(Collectors.toMap(
-            p -> (p.getTitle() + "_" + p.getCategory().getId()),
-            p -> p,
-            (a, b) -> a
-        ))
-        .values()
-        .stream()
-        .toList();
-
-    StringBuilder newsLinks = new StringBuilder();
-    for (Post p : distinctPosts) {
-      newsLinks.append("<li>")
-          .append("<a href='http://localhost:8080/post/")
-          .append(p.getId())
-          .append("' style='color:#007bff;text-decoration:none;'>")
-          .append(p.getTitle())
-          .append("</a>")
-          .append("</li>");
+    for (Post p : newsPosts) {
+      String localLink = "http://localhost:8080/post/" + p.getId();
+      summary = summary.replaceAll("\\(URL\\)", "(" + localLink + ")");
     }
 
+    MutableDataSet options = new MutableDataSet();
+    Parser parser = Parser.builder(options).build();
+    HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+
+    Node document = parser.parse(summary);
+    String summaryHtml = renderer.render(document);
+
     return """
-        <div style='font-family:Arial,sans-serif;padding:20px;'>
-          <h2>📬 NewsTwin 통합 뉴스레터</h2>
-          <p>안녕하세요, %s님 👋</p>
-          <p>오늘의 AI 뉴스 요약:</p>
-          <blockquote style='background:#f5f5f5;padding:10px;border-radius:8px;'>%s</blockquote>
-          <p><strong>📎 참고한 뉴스 목록</strong></p>
-          <ul>%s</ul>
-          <hr>
-          <p style='font-size:12px;color:#888;'>
-            뉴스레터 수신 거부는 <a href='%s' style='color:#888;'>여기서 해제</a> 가능합니다.
-          </p>
+        <div style='font-family:Arial,Helvetica,sans-serif; background-color:#f8f9fa; padding:20px;'>
+          <div style='min-width:600px; margin:auto; background:#ffffff; padding:25px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
+            <h2 style='font-size:22px; color:#333333; margin-top:0;'>📬 NewsTwin 통합 뉴스레터</h2>
+            <p style='font-size:15px; color:#333;'>안녕하세요, <strong>%s</strong>님 👋</p>
+        
+            <div style='margin-top:15px; background:#f3f6fb; border-left:4px solid #007bff; padding:15px 20px; border-radius:6px;'>
+              %s
+            </div>
+        
+            <div style='margin-top:25px; font-size:12px; color:#888888; text-align:center;'>
+              <hr style='border:none; border-top:1px solid #eee; margin:15px 0;'>
+              뉴스레터 수신 거부는
+              <a href='%s' style='color:#d9534f; text-decoration:none;'>여기</a>를 클릭하세요.<br>
+              © 2025 NewsTwin. All rights reserved.
+            </div>
+          </div>
         </div>
-        """.formatted(member.getMemberName(), summary, newsLinks, unsubscribeLink);
+        """.formatted(member.getMemberName(), summaryHtml, unsubscribeLink);
   }
 
   @Transactional

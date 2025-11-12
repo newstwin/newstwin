@@ -97,6 +97,7 @@ public class MemberService {
                             .role(member.getRole().name())
                             .isActive(member.getIsActive())
                             .isVerified(member.getIsVerified())
+                            .receiveEmail(member.getReceiveEmail() != null ? member.getReceiveEmail() : false)
                             .categories(categoryNames)
                             .categoryIds(subs.stream().map(s -> s.getCategory().getId()).toList())
                             .subscriptionStatus(hasActive ? "구독중" : "구독 없음")
@@ -139,5 +140,20 @@ public class MemberService {
                 .toList();
 
         return MemberResponseDto.fromEntityWithCategories(member, activeCategories);
+    }
+
+    public MemberResponseDto toggleReceiveEmail(Long memberId) {
+      Member member = memberRepository.findById(memberId)
+          .orElseThrow(() -> new RuntimeException("회원 없음"));
+
+      member.setReceiveEmail(!member.getReceiveEmail());
+      memberRepository.save(member);
+
+      List<Category> activeCategories = userSubscriptionRepository.findAllByMember(member).stream()
+          .filter(UserSubscription::getIsActive)
+          .map(UserSubscription::getCategory)
+          .toList();
+
+      return MemberResponseDto.fromEntityWithCategories(member, activeCategories);
     }
 }
