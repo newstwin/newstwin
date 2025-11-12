@@ -1,0 +1,227 @@
+body {
+    background-color: #f8f9fa;
+}
+
+/* ======================
+   전체 레이아웃 / 본문
+====================== */
+main {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding-right: 80px; /* 오른쪽 액션바 여유 */
+}
+
+.content-wrap {
+    width: 80vw;
+    background: #fff;
+    border-radius: 0.75rem;
+    padding: 3rem 4rem;
+    box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.05);
+    margin: auto;
+}
+
+/* ======================
+   타이틀 / 메타정보
+====================== */
+.post-title {
+    font-weight: 700;
+    font-size: 1.9rem;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.6rem;
+}
+.post-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+}
+
+/* ======================
+   본문
+====================== */
+.post-body {
+    font-size: 1.08rem;
+    color: #333;
+    line-height: 1.85;
+    letter-spacing: -0.005em;
+}
+.post-body h1, .post-body h2, .post-body h3 {
+    margin-top: 1.5rem;
+    font-weight: 700;
+}
+.post-body p, .post-body li {
+    margin-bottom: 0.9rem;
+}
+.post-body pre {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+.post-body code {
+    background: #f1f3f5;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+}
+.post-body a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+.post-body a:hover {
+    text-decoration: underline;
+}
+
+/* ======================
+   용어 강조
+====================== */
+.nt-term {
+    background: linear-gradient(to top, rgba(255, 235, 59, 0.4) 45%, transparent 45%);
+    font-weight: 500;
+    padding: 0 2px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.nt-term:hover {
+    background: linear-gradient(to top, rgba(255, 235, 59, 0.7) 45%, transparent 45%);
+}
+
+/* ======================
+   반응 버튼
+====================== */
+.reaction-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 1.8rem;
+    flex-wrap: wrap;
+}
+.reaction-bar button {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #495057;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+.reaction-bar button:hover {
+    background: #e9ecef;
+    color: #212529;
+}
+
+/* 공유 메뉴 드롭다운 */
+#shareMenu {
+    top: 40px;
+    left: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+#shareMenu .list-group-item {
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.95rem;
+}
+#shareMenu .list-group-item:hover {
+    background: #f8f9fa;
+}
+
+/* ======================
+   댓글 영역
+====================== */
+.comment-section {
+    margin-top: 2.8rem;
+}
+.comment-section h6 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.comment-input-area {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+}
+.comment-input-area textarea {
+    border: none;
+    resize: none;
+    background: transparent;
+    font-size: 0.95rem;
+    outline: none;
+    width: 100%;
+}
+.comment-input-area textarea:focus {
+    background: #fff;
+    border-radius: 0.5rem;
+    outline: 2px solid #cfe2ff;
+}
+
+.comment-submit {
+    background-color: #0d6efd;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 6px 14px;
+    transition: background 0.2s;
+}
+.comment-submit:hover {
+    background-color: #0b5ed7;
+}
+
+/* ======================
+   오른쪽 플로팅 액션바
+====================== */
+.side-action {
+    position: fixed;
+    top: 40%;
+    right: 3%; /* ← 오른쪽으로 이동 */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 100;
+}
+@media (max-width: 1200px) {
+    .side-action {
+        right: 1.5%;
+    }
+}
+@media (max-width: 992px) {
+    .side-action {
+        display: none;
+    }
+}
+.action-btn {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+}
+.action-btn:hover {
+    background: #f1f3f5;
+    transform: translateY(-3px);
+}
+.action-btn i {
+    font-size: 1.2rem;
+    color: #495057;
+}
+
+/* ======================
+   애니메이션
+====================== */
+html {
+    scroll-behavior: smooth;
+}

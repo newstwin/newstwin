@@ -24,10 +24,6 @@ public class MemberService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final EmailService emailService;
 
-    /**
-     * 회원가입
-     * - 이메일 인증 추가 (isActive=false, 메일 전송)
-     */
     public MemberResponseDto signup(MemberRequestDto requestDto) {
         if (memberRepository.findByEmail(requestDto.getEmail()).isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
@@ -40,12 +36,12 @@ public class MemberService {
                 encodedPassword,
                 requestDto.getEmail(),
                 Member.Role.ROLE_USER,
-                false  // 인증 전 비활성화 상태
+                true // isActive 기본 true (관리자 차단 아님)
         );
+        member.setIsVerified(false); // 이메일 인증 전 false
 
         Member savedMember = memberRepository.save(member);
 
-        // 이메일 인증 토큰 생성 및 발송
         EmailVerificationToken token = EmailVerificationToken.create(savedMember);
         tokenRepository.save(token);
         emailService.sendVerificationEmail(savedMember.getEmail(), token.getToken());
@@ -53,9 +49,6 @@ public class MemberService {
         return MemberResponseDto.fromEntity(savedMember);
     }
 
-    /**
-     * 이메일 인증 처리
-     */
     public String verifyEmail(String tokenValue) {
         EmailVerificationToken token = tokenRepository.findByToken(tokenValue)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE));
@@ -65,31 +58,25 @@ public class MemberService {
         }
 
         Member member = token.getMember();
-        member.setIsActive(true);
+        member.verifyEmail();
         memberRepository.save(member);
 
         tokenRepository.delete(token);
-
         return "이메일 인증이 완료되었습니다. 로그인해주세요.";
     }
 
-    /**
-     * 인증 메일 재발송
-     */
     public void resendVerificationEmail(String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if (member.getIsActive()) {
+        if (member.getIsVerified()) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE); // 이미 인증됨
         }
 
-        // 기존 토큰이 있다면 삭제
         tokenRepository.findAll().stream()
                 .filter(t -> t.getMember().getId().equals(member.getId()))
                 .forEach(tokenRepository::delete);
 
-        // 새 토큰 생성 후 발송
         EmailVerificationToken newToken = EmailVerificationToken.create(member);
         tokenRepository.save(newToken);
         emailService.sendVerificationEmail(member.getEmail(), newToken.getToken());
@@ -99,13 +86,9 @@ public class MemberService {
     public List<MemberResponseDto> getAllMembers() {
         return memberRepository.findAll().stream()
                 .map(member -> {
-                    List<UserSubscription> subscriptions = userSubscriptionRepository.findAllByMember(member);
-                    List<String> categoryNames = subscriptions.stream()
-                            .map(sub -> sub.getCategory().getCategoryName())
-                            .toList();
-
-                    boolean hasActive = subscriptions.stream().anyMatch(UserSubscription::getIsActive);
-                    String subscriptionStatus = hasActive ? "구독중" : "구독 없음";
+                    List<UserSubscription> subs = userSubscriptionRepository.findAllByMember(member);
+                    List<String> categoryNames = subs.stream().map(s -> s.getCategory().getCategoryName()).toList();
+                    boolean hasActive = subs.stream().anyMatch(UserSubscription::getIsActive);
 
                     return MemberResponseDto.builder()
                             .id(member.getId())
@@ -113,11 +96,10 @@ public class MemberService {
                             .email(member.getEmail())
                             .role(member.getRole().name())
                             .isActive(member.getIsActive())
+                            .isVerified(member.getIsVerified())
                             .categories(categoryNames)
-                            .categoryIds(subscriptions.stream()
-                                    .map(s -> s.getCategory().getId())
-                                    .toList())
-                            .subscriptionStatus(subscriptionStatus)
+                            .categoryIds(subs.stream().map(s -> s.getCategory().getId()).toList())
+                            .subscriptionStatus(hasActive ? "구독중" : "구독 없음")
                             .build();
                 })
                 .toList();
@@ -145,12 +127,10 @@ public class MemberService {
         List<Category> categories = categoryRepository.findAllById(categoryIds);
 
         for (Category category : categories) {
-            UserSubscription subscription = userSubscriptionRepository.findByMemberAndCategory(member, category)
-                    .orElseGet(() -> userSubscriptionRepository.save(
-                            UserSubscription.create(member, category, false)
-                    ));
-            subscription.setIsActive(!subscription.getIsActive());
-            userSubscriptionRepository.save(subscription);
+            UserSubscription sub = userSubscriptionRepository.findByMemberAndCategory(member, category)
+                    .orElseGet(() -> userSubscriptionRepository.save(UserSubscription.create(member, category, false)));
+            sub.setIsActive(!sub.getIsActive());
+            userSubscriptionRepository.save(sub);
         }
 
         List<Category> activeCategories = userSubscriptionRepository.findAllByMember(member).stream()

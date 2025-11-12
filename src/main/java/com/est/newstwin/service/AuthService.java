@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 인증 서비스
- * - 사용자 로그인 처리 및 JWT 토큰 발급
+ * - 로그인 시 이메일 인증 여부(isVerified)와 관리자 비활성화(isActive) 모두 검증
+ * - 모든 조건 충족 시 JWT 발급
  */
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,10 +35,14 @@ public class AuthService {
         Member member = memberRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-
-        // 비활성화된 계정인지 확인
+        // 관리자에 의해 비활성화된 계정인지 확인
         if (Boolean.FALSE.equals(member.getIsActive())) {
             throw new CustomException(ErrorCode.ACCOUNT_DEACTIVATED);
+        }
+
+        // 이메일 인증이 완료되지 않은 계정인지 확인
+        if (Boolean.FALSE.equals(member.getIsVerified())) {
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         // 비밀번호 검증
@@ -49,7 +53,7 @@ public class AuthService {
         // JWT 토큰 발급
         String accessToken = jwtTokenProvider.generateToken(member);
 
-        // 응답 생성
+        // 로그인 응답 반환
         return LoginResponseDto.of(accessToken, null, member.getMemberName());
     }
 }

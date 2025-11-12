@@ -30,7 +30,7 @@ public class NewsletterScheduler {
 
   /** ✅ 수동 실행용 (GET /newsletter) */
   @Transactional
-  @Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
+  //@Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
   public void sendNewsletters() {
     log.info("📧 [NewsletterScheduler] 구독자별 통합 뉴스 생성 및 발송 시작");
 
