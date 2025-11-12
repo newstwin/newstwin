@@ -1,51 +1,55 @@
-const shareBtn = document.getElementById('shareBtn');
-const shareMenu = document.getElementById('shareMenu');
+(() => {
+  const shareBtn = document.getElementById('shareBtn');
+  const shareMenu = document.getElementById('shareMenu');
 
-shareBtn.addEventListener('click', (e)=>{
-  shareMenu.classList.toggle('d-none');
-  shareMenu.style.top = (shareBtn.offsetTop + 35) + 'px';
-  shareMenu.style.left = shareBtn.offsetLeft + 'px';
-});
+  if (!shareBtn || !shareMenu) return;
 
-document.addEventListener('click', (e) => {
+  shareBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const rect = shareBtn.getBoundingClientRect();
+    shareMenu.style.position = 'absolute';
+    shareMenu.style.top = `${shareBtn.offsetTop + shareBtn.offsetHeight + 5}px`;
+    shareMenu.style.left = `${shareBtn.offsetLeft}px`;
+    shareMenu.classList.toggle('d-none');
+  });
 
-  const menu = document.getElementById('shareMenu');
-  const shareBtn2 = document.getElementById('shareBtn');
+  // 외부 클릭 시 닫기
+  document.addEventListener('click', (e) => {
+    if (!shareMenu.classList.contains('d-none') &&
+        !shareMenu.contains(e.target) &&
+        !shareBtn.contains(e.target)) {
+      shareMenu.classList.add('d-none');
+    }
+  });
 
-  // menu 열려있는 상태에서
-  if (!menu.classList.contains('d-none')) {
-
-    // 클릭한게 shareBtn 또는 menu 내부면 무시
-    if (shareBtn2.contains(e.target) || menu.contains(e.target)) return;
-
-    // 아니면 닫기
-    menu.classList.add('d-none');
-  }
-});
-
-document.querySelector('.share-copy').addEventListener('click', async ()=>{
-  const url = window.location.href;
-  try {
-    await navigator.clipboard.writeText(url);
-    alert("주소가 복사되었습니다.");
-    shareMenu.classList.add('d-none');
-  } catch(e){}
-});
-
-document.querySelector('.share-sns').addEventListener('click', async ()=>{
-  const url = window.location.href;
-  const title = document.title;
-
-  if (navigator.share) {
+  // URL 복사
+  document.querySelector('.share-copy').addEventListener('click', async () => {
+    const url = window.location.href;
     try {
-      await navigator.share({ title, url });
-    } catch(e){}
-  } else {
-    // 네비게이터가 없을때 페이스북 공유
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
-        "_blank",
-        "width=600,height=500");
-  }
+      await navigator.clipboard.writeText(url);
+      alert("주소가 복사되었습니다.");
+      shareMenu.classList.add('d-none');
+    } catch (e) {
+      alert("복사 실패");
+    }
+  });
 
-  shareMenu.classList.add('d-none');
-});
+  // SNS 공유
+  document.querySelector('.share-sns').addEventListener('click', async () => {
+    const url = window.location.href;
+    const title = document.title;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch (e) {}
+    } else {
+      window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
+          "_blank",
+          "width=600,height=500"
+      );
+    }
+    shareMenu.classList.add('d-none');
+  });
+})();

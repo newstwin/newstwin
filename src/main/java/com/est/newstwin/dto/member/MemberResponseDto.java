@@ -22,14 +22,13 @@ public class MemberResponseDto {
     private String profileImage;
     private Boolean receiveEmail;
     private Boolean isActive;
+    private Boolean isVerified;
     private List<String> categories;
     private List<Long> categoryIds;
     private String subscriptionStatus;
 
     public static MemberResponseDto fromEntity(Member member) {
         String profileImage = member.getProfileImage();
-
-        // null 이거나 공백이면 기본 이미지로 대체
         if (profileImage == null || profileImage.isBlank()) {
             profileImage = "/images/basic-profile.png";
         }
@@ -41,9 +40,12 @@ public class MemberResponseDto {
                 .role(member.getRole().name())
                 .profileImage(profileImage)
                 .receiveEmail(member.getReceiveEmail())
+                .isActive(member.getIsActive())
+                .isVerified(member.getIsVerified())
                 .categories(member.getCategories())
                 .build();
     }
+
 
   public static MemberResponseDto fromEntityWithCategories(Member member, List<Category> categories) {
     List<String> categoryNames = categories.stream()

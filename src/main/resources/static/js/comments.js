@@ -147,6 +147,7 @@
 
       if (page === 0) {
         document.getElementById('commentTotal').textContent = data.totalCount;
+        if (window.updateSideCommentCount) window.updateSideCommentCount(data.totalCount);
       }
 
       (data.items || []).forEach(renderRoot);

@@ -1,25 +1,44 @@
 (() => {
-  const likeBtn = document.getElementById('likeBtn');
-  const heartIcon = document.getElementById('heartIcon');
-  const likeCountEl = document.getElementById('likeCount');
-  const postId = likeBtn.dataset.postId;
+  const postId = document.getElementById("likeBtn").dataset.postId;
 
-  const bookmarkBtn = document.getElementById('bookmarkBtn');
-  const bookmarkIcon = document.getElementById('bookmarkIcon');
+  const likeBtn = document.getElementById("likeBtn");
+  const heartIcon = document.getElementById("heartIcon");
+  const likeCountEl = document.getElementById("likeCount");
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
-  });
+  const bookmarkBtn = document.getElementById("bookmarkBtn");
+  const bookmarkIcon = document.getElementById("bookmarkIcon");
 
+  // 사이드 액션바 요소
+  const sideLike = document.getElementById("sideLike");
+  const sideLikeCount = document.getElementById("sideLikeCount");
+  const sideBookmark = document.getElementById("sideBookmark");
+  const sideCommentCount = document.getElementById("sideCommentCount");
+
+  // 로그인 필요 시 리다이렉트
   const ensureAuthOrRedirect = (res) => {
-    if(res.status === 401 || res.status === 403){
+    if (res.status === 401 || res.status === 403) {
       window.location.href = "/login";
       return false;
     }
     return true;
   };
 
+  // 좋아요 / 북마크 UI 업데이트
+  const updateLikeUI = (liked, count) => {
+    heartIcon.textContent = liked ? "❤️" : "🤍";
+    likeBtn.dataset.liked = liked;
+    likeCountEl.textContent = count;
+    sideLike.querySelector(".emoji").textContent = liked ? "❤️" : "🤍";
+    sideLikeCount.textContent = count;
+  };
+
+  const updateBookmarkUI = (bookmarked) => {
+    bookmarkIcon.className = bookmarked ? "bi bi-bookmark-fill" : "bi bi-bookmark";
+    bookmarkBtn.dataset.bookmarked = bookmarked;
+    sideBookmark.querySelector("i").className =
+        bookmarked ? "bi bi-bookmark-fill text-primary" : "bi bi-bookmark";
+  };
+  
   document.addEventListener("DOMContentLoaded", () => {
     const deleteBtn = document.getElementById("deleteBtn");
     if (!deleteBtn) return;
@@ -48,69 +67,113 @@
   });
 
 
+  // 초기 데이터 로드
   document.addEventListener("DOMContentLoaded", async () => {
-    //좋아요 count는 무조건 공개
     try {
-      const resCount = await fetch(`/api/posts/${postId}/like/count`);
+      // tooltip 활성화
+      document.querySelectorAll("[title]").forEach((el) => new bootstrap.Tooltip(el));
+
+      const [resCount, resLike, resBookmark] = await Promise.all([
+        fetch(`/api/posts/${postId}/like/count`),
+        fetch(`/api/posts/${postId}/like`),
+        fetch(`/api/posts/${postId}/bookmark`),
+      ]);
+
       if (resCount.ok) {
         const { likeCount } = await resCount.json();
         likeCountEl.textContent = likeCount;
+        sideLikeCount.textContent = likeCount;
       }
-    } catch (e) {}
 
-    //Like 상태는 가능할때만
-    try {
-      const resLike = await fetch(`/api/posts/${postId}/like`);
       if (resLike.ok) {
-        const { liked } = await resLike.json();
-        heartIcon.textContent = liked ? '❤️' : '🤍';
-        likeBtn.dataset.liked = liked;
+        const { liked, likeCount } = await resLike.json();
+        updateLikeUI(liked, likeCount);
       }
-    } catch (e) {}
 
-    //북마크 상태도 가능할때만
-    try {
-      const resBookmark = await fetch(`/api/posts/${postId}/bookmark`);
       if (resBookmark.ok) {
         const { bookmarked } = await resBookmark.json();
-        bookmarkIcon.className = bookmarked ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
-        bookmarkBtn.dataset.bookmarked = bookmarked;
+        updateBookmarkUI(bookmarked);
       }
-    } catch (e) {}
+
+      // 댓글 개수는 comments.js에서 totalCount 설정 시 자동 반영
+      window.updateSideCommentCount = function (count) {
+        sideCommentCount.textContent = count;
+      };
+    } catch (e) {
+      console.error("초기 로드 실패:", e);
+    }
   });
 
-  //좋아요 토글
-  likeBtn.addEventListener('click', async () => {
-  likeBtn.disabled = true;
-  try {
-    const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
-    if(!ensureAuthOrRedirect(res)) return;
-    const { liked, likeCount } = await res.json();
-    heartIcon.textContent = liked ? '❤️' : '🤍';
-    likeCountEl.textContent = likeCount;
-    likeBtn.dataset.liked = liked;
-  } catch (e) {
-    alert('좋아요 실패');
-  } finally {
-    likeBtn.disabled = false;
-  }
+  // 좋아요 / 북마크 이벤트
+  likeBtn.addEventListener("click", async () => {
+    likeBtn.disabled = true;
+    try {
+      const res = await fetch(`/api/posts/${postId}/like`, { method: "POST" });
+      if (!ensureAuthOrRedirect(res)) return;
+      const { liked, likeCount } = await res.json();
+      updateLikeUI(liked, likeCount);
+    } finally {
+      likeBtn.disabled = false;
+    }
   });
 
+  sideLike.addEventListener("click", () => likeBtn.click());
 
-  //북마크 토글
-  bookmarkBtn.addEventListener('click', async () => {
-  bookmarkBtn.disabled = true;
-  try {
-  const res = await fetch(`/api/posts/${postId}/bookmark`, { method: 'POST' });
-  if(!ensureAuthOrRedirect(res)) return;
-  const { bookmarked } = await res.json();
-  bookmarkIcon.className = bookmarked ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
-  bookmarkBtn.dataset.bookmarked = bookmarked;
-} catch (e) {
-  alert('북마크 실패');
-} finally {
-  bookmarkBtn.disabled = false;
-}
-});
+  bookmarkBtn.addEventListener("click", async () => {
+    bookmarkBtn.disabled = true;
+    try {
+      const res = await fetch(`/api/posts/${postId}/bookmark`, { method: "POST" });
+      if (!ensureAuthOrRedirect(res)) return;
+      const { bookmarked } = await res.json();
+      updateBookmarkUI(bookmarked);
+    } finally {
+      bookmarkBtn.disabled = false;
+    }
+  });
 
+  sideBookmark.addEventListener("click", () => bookmarkBtn.click());
+
+  // 댓글 클릭 → 스크롤 이동
+  const sideComment = document.getElementById("sideComment");
+  sideComment.addEventListener("click", () => {
+    document.querySelector(".comment-section").scrollIntoView({ behavior: "smooth" });
+  });
+
+  // 공유 기능 (▼ 제거, 클릭 즉시 열림)
+  const sideShare = document.getElementById("sideShare");
+  const dropdownItems = document.querySelectorAll(".dropdown-item");
+
+  dropdownItems.forEach((item) => {
+    item.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      if (item.classList.contains("share-copy")) {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          alert("주소가 복사되었습니다.");
+        } catch {
+          alert("복사 실패");
+        }
+      }
+
+      if (item.classList.contains("share-sns")) {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, url });
+          } catch (e) {}
+        } else {
+          window.open(
+              `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`,
+              "_blank",
+              "width=600,height=500"
+          );
+        }
+      }
+
+      const dropdown = bootstrap.Dropdown.getInstance(sideShare);
+      if (dropdown) dropdown.hide();
+    });
+  });
 })();
