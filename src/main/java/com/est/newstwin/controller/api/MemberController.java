@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -102,5 +103,36 @@ public class MemberController {
         boolean exists = memberRepository.findByEmail(email).isPresent();
 
         return ApiResponse.success("이메일 존재 여부 확인", exists);
+    }
+
+    @Transactional
+    @GetMapping("/unsubscribe")
+    public ResponseEntity<String> unsubscribe(@RequestParam Long memberId) {
+      Member member = memberRepository.findById(memberId)
+          .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+      if (!member.getReceiveEmail()) {
+        return ResponseEntity.ok()
+            .header("Content-Type", "text/html; charset=UTF-8")
+            .body("""
+                          <div style='font-family:sans-serif;padding:20px;'>
+                          ✅ 이미 뉴스레터 수신이 해제된 상태입니다.<br><br>
+                          <a href='http://localhost:8080'>홈으로 돌아가기</a>
+                          </div>
+                          """);
+      }
+
+      member.setReceiveEmail(false);
+      memberRepository.save(member);
+
+      return ResponseEntity.ok()
+          .header("Content-Type", "text/html; charset=UTF-8")
+          .body("""
+                      <div style='font-family:sans-serif;padding:20px;'>
+                      ✅ 뉴스레터 수신이 해제되었습니다.<br>
+                      앞으로 더 이상 메일이 발송되지 않습니다.<br><br>
+                      <a href='http://localhost:8080'>홈으로 돌아가기</a>
+                      </div>
+                      """);
     }
 }

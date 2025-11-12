@@ -21,7 +21,7 @@
     </span>
     <ul class="list-unstyled">
       <li class="mb-3" th:each="log : ${newsLogs}">
-        <div th:text="${log.post != null ? log.post.content : '내용이 없습니다.'}" style="white-space: pre-line;"></div>
+        <div th:utext="${log.post != null ? log.post.content : '내용이 없습니다.'}" style="white-space: pre-line;"></div>
       </li>
     </ul>
   </div>

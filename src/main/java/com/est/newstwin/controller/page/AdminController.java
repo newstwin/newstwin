@@ -1,6 +1,5 @@
 package com.est.newstwin.controller.page;
 
-import com.est.newstwin.domain.Category;
 import com.est.newstwin.domain.Comment;
 import com.est.newstwin.domain.MailLog;
 import com.est.newstwin.domain.Member;
@@ -14,7 +13,6 @@ import com.est.newstwin.exception.CustomException;
 import com.est.newstwin.exception.ErrorCode;
 import com.est.newstwin.repository.MailLogRepository;
 import com.est.newstwin.repository.MemberRepository;
-import com.est.newstwin.scheduler.NewsletterScheduler;
 import com.est.newstwin.service.AdminService;
 import com.est.newstwin.service.AuthService;
 import com.est.newstwin.service.CommentService;
@@ -90,6 +88,13 @@ public class AdminController {
       @RequestBody List<Long> categoryIds) {
 
     MemberResponseDto dto = memberService.toggleSubscriptionStatus(memberId, categoryIds);
+    return ResponseEntity.ok(dto);
+  }
+
+  @PatchMapping("/admin/users/{memberId}/receive")
+  @ResponseBody
+  public ResponseEntity<MemberResponseDto> toggleReceiveEmail(@PathVariable Long memberId) {
+    MemberResponseDto dto = memberService.toggleReceiveEmail(memberId);
     return ResponseEntity.ok(dto);
   }
 
@@ -226,14 +231,17 @@ public class AdminController {
 
   // 메일 상세 페이지 (메일 타입만)
   @GetMapping("/admin/mails-contents")
-  public String viewMailContents(@RequestParam String title, Model model) {
-    List<MailLog> newsLogs = mailLogRepository.findAllByPost_TitleAndPost_Type(title, "mail");
-    if (newsLogs.isEmpty()) {
-      model.addAttribute("newsTitle", "메일 로그가 없습니다.");
-    } else {
-      model.addAttribute("newsTitle", newsLogs.get(0).getPost().getTitle());
+  public String viewMailContents(@RequestParam Long mailId, Model model) {
+    MailLog log = mailLogRepository.findById(mailId)
+        .orElseThrow(() -> new IllegalArgumentException("메일 로그를 찾을 수 없습니다."));
+
+    Post post = log.getPost();
+    if (post == null) {
+      model.addAttribute("newsTitle", "메일 내용이 없습니다.");
+      return "admin/mails-contents";
     }
-    model.addAttribute("newsLogs", newsLogs);
+    model.addAttribute("newsTitle", post.getTitle());
+    model.addAttribute("newsLogs", List.of(log));
     return "admin/mails-contents";
   }
 

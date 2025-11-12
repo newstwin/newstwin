@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/favicon.ico",
                                 "/webjars/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/unsubscribe"
                         ).permitAll()
 
                         // 비로그인 사용자만 접근 가능 (로그인 상태면 접근 불가)

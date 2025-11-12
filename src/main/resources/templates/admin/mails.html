@@ -16,7 +16,7 @@
       <th style="width: 5%;">No</th>
       <th style="width: 15%;">시간</th>
       <th style="width: 10%;">이메일</th>
-      <th style="width: 30%;">메일 발송 제목</th>
+      <th style="width: 30%;">제목</th>
       <th style="width: 5%;">상태</th>
     </tr>
     </thead>
@@ -26,7 +26,7 @@
         <td th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
         <td th:text="${log.member.email}"></td>
         <td>
-          <a th:href="@{/admin/mails-contents(title=${log.post.title})}"
+          <a th:href="@{/admin/mails-contents(mailId=${log.id})}"
              th:text="${log.post.title}" class="text-decoration-none text-dark"></a>
         </td>
         <td>
