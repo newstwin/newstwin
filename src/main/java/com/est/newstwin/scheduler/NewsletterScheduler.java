@@ -70,9 +70,11 @@ public class NewsletterScheduler {
       try {
         // ✅ 3️⃣ GPT 요약 생성
         String sourceText = buildSummaryText(allRecentNews);
-        String markdown = chatGPTService.analyzeMarkdown(sourceText);
-        String json = chatGPTService.analyzeJson(markdown);
-        String title = chatGPTService.generateTitle(markdown);
+        ChatGPTService.NewsletterResult result = chatGPTService.generateNewsletterSummary(sourceText);
+
+        String markdown = result.markdown();
+        String json = result.json();
+        String title = result.title();
 
         // ✅ 4️⃣ 메일용 HTML 생성
         String htmlContent = mailService.buildHtmlNewsletter(member, markdown, allRecentNews);

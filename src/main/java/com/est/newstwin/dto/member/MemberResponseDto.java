@@ -2,6 +2,7 @@ package com.est.newstwin.dto.member;
 
 import com.est.newstwin.domain.Category;
 import com.est.newstwin.domain.Member;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class MemberResponseDto {
     private List<String> categories;
     private List<Long> categoryIds;
     private String subscriptionStatus;
+    private LocalDateTime updatedAt;
 
     public static MemberResponseDto fromEntity(Member member) {
         String profileImage = member.getProfileImage();
@@ -66,6 +68,7 @@ public class MemberResponseDto {
         .categories(categoryNames)
         .categoryIds(categoryIds)
         .subscriptionStatus(categoryNames.isEmpty() ? "구독 없음" : "구독중")
+        .updatedAt(member.getUpdatedAt())
         .build();
   }
 }

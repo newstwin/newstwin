@@ -15,10 +15,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserSubscriptionRepository extends JpaRepository<UserSubscription, Long> {
   List<UserSubscription> findAllByMember(Member member); // 단방향 조회용
-  List<UserSubscription> findAllByCategory(Category category);
+  List<UserSubscription> findAllByMemberAndIsActiveTrue(Member member);
   Optional<UserSubscription> findByMemberAndCategory(Member member, Category category);
-
-
   Optional<UserSubscription> findByMemberAndCategoryId(Member member, Long categoryId);
 
   @Modifying
@@ -29,6 +27,4 @@ public interface UserSubscriptionRepository extends JpaRepository<UserSubscripti
   @Query("select us from UserSubscription us where us.member = :member and us.category.id in :categoryIds")
   List<UserSubscription> findAllByMemberAndCategoryIdIn(@Param("member") Member member,
       @Param("categoryIds") List<Long> categoryIds);
-
-  long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

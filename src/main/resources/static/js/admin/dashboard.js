@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
       options: chartOptions
     });
 
-    new Chart(document.getElementById("chartSubscribers"), {
+    new Chart(document.getElementById("chartUserMails"), {
       type: "line",
-      data: { labels: months, datasets: [{ label: "구독자", data: data.subscriberCounts, borderColor: "orange" }] },
+      data: { labels: months, datasets: [{ label: "메일구독 수", data: data.userMailCount, borderColor: "orange" }] },
       options: chartOptions
     });
 
@@ -52,17 +52,34 @@ async function toggleStatus(el, type) {
       data = await response.json();
       el.textContent = data.isActive ? '활성' : '비활성';
       el.className = `badge px-3 py-2 cursor-pointer ${data.isActive ? 'bg-success' : 'bg-danger'}`;
-    } else if(type === 'subscription') {
-      const categoryIds = el.getAttribute("data-category-ids").split(',').map(id => Number(id));
+    }
+
+    else if (type === 'subscription') {
+      const rawIds = el.getAttribute("data-category-ids");
+      if (!rawIds || rawIds.trim() === "") {
+        alert("구독 가능한 카테고리가 없습니다.");
+        return;
+      }
+      const categoryIds = rawIds.split(',').map(id => Number(id)).filter(id => !isNaN(id));
+      if (categoryIds.length === 0) {
+        alert("유효한 카테고리가 없습니다.");
+        return;
+      }
       response = await fetch(`/admin/users/${memberId}/subscriptions`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(categoryIds)
       });
+      if (!response.ok) throw new Error("서버 응답 오류");
       data = await response.json();
       el.textContent = data.subscriptionStatus;
       el.className = `badge px-3 py-2 cursor-pointer ${data.subscriptionStatus === '구독중' ? 'bg-success' : 'bg-secondary'}`;
-    } else if(type === 'receiveEmail') {
+
+      const categoryCell = el.closest("tr").querySelector("td:nth-child(4)");
+      categoryCell.textContent = data.categories?.join(', ') || '';
+    }
+    else if (type === 'receiveEmail') {
+      // 메일 수신/거부 토글
       response = await fetch(`/admin/users/${memberId}/receive`, { method: 'PATCH' });
       data = await response.json();
       el.textContent = data.receiveEmail ? '수신' : '거부';
@@ -75,19 +92,24 @@ async function toggleStatus(el, type) {
   }
 }
 
-// 게시판 관리
-  function filterByType() {
-  const type = document.getElementById('postTypeSelect').value;
-  const url = new URL(window.location.href);
+/**
+ * 공용 필터 함수
+ * @param {string} selectId - 셀렉트 박스의 id
+ * @param {string} paramName - URL 파라미터 이름 (예: role, type 등)
+ * @param {string} basePath - 요청할 경로 (예: /admin/users)
+ */
+function filterBy(selectId, paramName, basePath) {
+  const value = document.getElementById(selectId).value;
+  const url = new URL(window.location.origin + basePath);
 
-  url.searchParams.set('page', 0);
-  url.searchParams.set('size', 10);
+  url.searchParams.set("page", 0);
+  url.searchParams.set("size", 10);
 
-  if (type && type.trim() !== '') {
-  url.searchParams.set('type', type);
-} else {
-  url.searchParams.delete('type');
-}
+  if (value && value.trim() !== "") {
+    url.searchParams.set(paramName, value);
+  } else {
+    url.searchParams.delete(paramName);
+  }
   window.location.href = url.toString();
 }
 

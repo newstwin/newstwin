@@ -6,6 +6,7 @@ import com.est.newstwin.dto.member.MemberResponseDto;
 import com.est.newstwin.exception.CustomException;
 import com.est.newstwin.exception.ErrorCode;
 import com.est.newstwin.repository.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,9 +87,9 @@ public class MemberService {
     public List<MemberResponseDto> getAllMembers() {
         return memberRepository.findAll().stream()
                 .map(member -> {
-                    List<UserSubscription> subs = userSubscriptionRepository.findAllByMember(member);
-                    List<String> categoryNames = subs.stream().map(s -> s.getCategory().getCategoryName()).toList();
-                    boolean hasActive = subs.stream().anyMatch(UserSubscription::getIsActive);
+                  List<UserSubscription> subs = userSubscriptionRepository.findAllByMemberAndIsActiveTrue(member);
+                  List<String> categoryNames = subs.stream().map(s -> s.getCategory().getCategoryName()).toList();
+                    boolean hasActive = !subs.isEmpty();
 
                     return MemberResponseDto.builder()
                             .id(member.getId())
@@ -111,6 +112,7 @@ public class MemberService {
                 .orElseThrow(() -> new RuntimeException("회원 없음"));
 
         member.setIsActive(!member.getIsActive());
+        member.setUpdatedAt(LocalDateTime.now());
         memberRepository.save(member);
 
         List<Category> activeCategories = userSubscriptionRepository.findAllByMember(member).stream()
@@ -147,6 +149,7 @@ public class MemberService {
           .orElseThrow(() -> new RuntimeException("회원 없음"));
 
       member.setReceiveEmail(!member.getReceiveEmail());
+      member.setUpdatedAt(LocalDateTime.now());
       memberRepository.save(member);
 
       List<Category> activeCategories = userSubscriptionRepository.findAllByMember(member).stream()

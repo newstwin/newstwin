@@ -42,12 +42,12 @@
       </a>
     </div>
 
-    <!-- 구독 수 카드 -->
+    <!-- 메일구독 수 카드 -->
     <div class="col-md-3 mb-4">
       <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h5 class="fw-semibold mb-2">구독</h5>
-          <p class="fw-bold fs-5 text-success mb-0" th:text="${subscriptionCount + '개'}">0개</p>
+          <h5 class="fw-semibold mb-2">메일 구독자</h5>
+          <p class="fw-bold fs-5 text-success mb-0" th:text="${userMailCount + '개'}">0개</p>
         </div>
       </div>
     </div>
@@ -89,7 +89,7 @@
       <div class="card shadow-sm h-200">
         <div class="card-body">
           <h6 class="fw-semibold mb-3 text-center">구독자 추이</h6>
-          <canvas id="chartSubscribers"></canvas>
+          <canvas id="chartUserMails"></canvas>
         </div>
       </div>
     </div>

@@ -26,8 +26,8 @@ public class AdminService {
     return postRepository.count();
   }
 
-  public long getSubscriptionCount() {
-    return subscriptionRepository.count();
+  public long getUserMailCount() {
+    return memberRepository.countByReceiveEmailTrue();
   }
 
   public long getMailCount() {
@@ -53,8 +53,8 @@ public class AdminService {
     return getMonthlyCounts(year, postRepository::countByCreatedAtBetween);
   }
 
-  public List<Long> getMonthlyCountsForSubscribers(int year) {
-    return getMonthlyCounts(year, subscriptionRepository::countByCreatedAtBetween);
+  public List<Long> getMonthlyCountsForMemberMails(int year) {
+    return getMonthlyCounts(year, memberRepository::countByReceiveEmailTrueAndUpdatedAtBetween);
   }
 
   public List<Long> getMonthlyCountsForMails(int year) {

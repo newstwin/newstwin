@@ -9,7 +9,15 @@
 <th:block th:replace="~{layout/header_admin :: header}"></th:block>
 
 <main class="container py-5">
-  <h2 class="fw-semibold mb-4">회원 관리</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="fw-semibold">회원 관리</h2>
+    <select id="userTypeSelect" class="form-select w-auto"
+            onchange="filterBy('userTypeSelect', 'role', '/admin/users')">
+      <option value="">전체</option>
+      <option value="ROLE_ADMIN" th:selected="${selectedRole == 'ROLE_ADMIN'}">관리자</option>
+      <option value="ROLE_USER" th:selected="${selectedRole == 'ROLE_USER'}">사용자</option>
+    </select>
+  </div>
   <table class="table table-hover align-middle shadow-sm rounded-3 overflow-hidden">
     <thead class="table-light">
       <tr class="text-center">

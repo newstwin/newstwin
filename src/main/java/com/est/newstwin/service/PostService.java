@@ -151,7 +151,10 @@ public class PostService {
   public List<PostResponseDto> getAllPost() {
     List<Post> posts = postRepository.findAll();
     return posts.stream()
-        .map(post -> new PostResponseDto(post, List.of(post.getCategory())))
+        .map(post -> new PostResponseDto(
+            post,
+            post.getCategory() != null ? List.of(post.getCategory()) : List.of()
+        ))
         .collect(Collectors.toList());
   }
 

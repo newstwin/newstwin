@@ -11,8 +11,9 @@
 <main class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="fw-semibold">게시글 관리</h2>
-    <select id="postTypeSelect" class="form-select w-auto" onchange="filterByType()">
-      <option value="" th:selected="${selectedType == null or selectedType == ''}">전체</option>
+    <select id="postTypeSelect" class="form-select w-auto"
+            onchange="filterBy('postTypeSelect', 'type', '/admin/posts')">
+      <option value="">전체</option>
       <option value="news" th:selected="${selectedType == 'news'}">뉴스</option>
       <option value="community" th:selected="${selectedType == 'community'}">커뮤니티</option>
     </select>

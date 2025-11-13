@@ -87,7 +87,11 @@ public class MailLogService {
 
     for (Post p : newsPosts) {
       String localLink = "http://localhost:8080/post/" + p.getId();
-      summary = summary.replaceAll("\\(URL\\)", "(" + localLink + ")");
+      String linkHtml = String.format(
+          "<a href='%s' target='_blank' style='color:#0d6efd; text-decoration:none; font-weight:500;'>%s</a>",
+          localLink, p.getTitle()
+      );
+      summary = summary.replaceFirst("\\(뉴스 링크: URL\\)", linkHtml);
     }
 
     MutableDataSet options = new MutableDataSet();

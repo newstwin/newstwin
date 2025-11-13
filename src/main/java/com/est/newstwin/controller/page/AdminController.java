@@ -61,8 +61,15 @@ public class AdminController {
   @GetMapping("admin/users")
   public String getMemberList(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(required = false) String role,
                               Model model) {
     List<MemberResponseDto> members = memberService.getAllMembers();
+
+    if (role != null && !role.isEmpty()) {
+      members = members.stream()
+          .filter(m -> role.equals(m.getRole()))
+          .toList();
+    }
 
     int start = page * size;
     int end = Math.min(start + size, members.size());
@@ -70,6 +77,7 @@ public class AdminController {
     Page<MemberResponseDto> membersPage = new PageImpl<>(paged, PageRequest.of(page, size), members.size());
     model.addAttribute("members", membersPage.getContent());
     model.addAttribute("page", membersPage);
+    model.addAttribute("selectedRole", role);
     return "admin/users";
   }
 
@@ -168,12 +176,12 @@ public class AdminController {
   public String dashboard(Model model) {
     long userCount = adminService.getUserCount();
     long postCount = adminService.getPostCount();
-    long subscriptionCount = adminService.getSubscriptionCount();
+    long userMailCount = adminService.getUserMailCount();
     long mailCount = adminService.getMailCount();
 
     model.addAttribute("userCount", userCount);
     model.addAttribute("postCount", postCount);
-    model.addAttribute("subscriptionCount", subscriptionCount);
+    model.addAttribute("userMailCount", userMailCount);
     model.addAttribute("mailCount", mailCount);
 
     return "admin/dashboard";
@@ -186,7 +194,7 @@ public class AdminController {
     result.put("months", List.of("1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"));
     result.put("userCounts", adminService.getMonthlyCountsForMembers(year));
     result.put("postCounts", adminService.getMonthlyCountsForPosts(year));
-    result.put("subscriberCounts", adminService.getMonthlyCountsForSubscribers(year));
+    result.put("userMailCount", adminService.getMonthlyCountsForMemberMails(year));
     result.put("mailCounts", adminService.getMonthlyCountsForMails(year));
     return result;
   }
@@ -195,11 +203,18 @@ public class AdminController {
   @GetMapping("/admin/mails")
   public String getMailLogs(@RequestParam(defaultValue = "0") int page,
                             @RequestParam(defaultValue = "10") int size,
+                            @RequestParam(required = false) String status,
                             Model model) {
     List<MailLog> logs = mailLogService.getAllMailLogs()
         .stream()
         .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
         .toList();
+
+    if (status != null && !status.isEmpty()) {
+      logs = logs.stream()
+          .filter(m -> status.equals(m.getStatus()))
+          .toList();
+    }
 
     int start = page * size;
     int end = Math.min(start + size, logs.size());
@@ -207,6 +222,7 @@ public class AdminController {
     Page<MailLog> mailPage = new PageImpl<>(pagedLogs, PageRequest.of(page, size), logs.size());
     model.addAttribute("mailLogs", pagedLogs);
     model.addAttribute("page", mailPage);
+    model.addAttribute("selectedStatus", status);
     return "admin/mails";
   }
 

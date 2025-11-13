@@ -62,13 +62,6 @@ public class Member {
     this.updatedAt = LocalDateTime.now();
   }
 
-  public void update(String memberName, String password, Boolean status) {
-    this.memberName = memberName;
-    this.password = password;
-    this.isActive = status;
-    this.updatedAt = LocalDateTime.now();
-  }
-
   public void updateInfo(String newName, String newPassword, Boolean newReceiveEmail, String newProfileImage) {
     if (newName != null && !newName.isBlank()) this.memberName = newName;
     if (newPassword != null && !newPassword.isBlank()) this.password = newPassword;
