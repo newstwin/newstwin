@@ -62,28 +62,26 @@
 
       <!-- 본문 내용 -->
       <div class="content-wrap">
+
         <h1 class="post-title" id="markdownTitle"></h1>
 
         <div class="post-meta mb-2">
-          <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2025-10-31</span>
+          <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
           <span th:if="${post.categoryName != null}">
-            · <span th:text="${post.categoryName}">카테고리</span>
+            · <span th:text="${post.categoryName}"></span>
           </span>
           · 조회수 <span th:text="${post.count}"></span>
         </div>
 
-        <div class="post-image" th:if="${post.thumbnailUrl != null}">
-          <img th:src="${post.thumbnailUrl}" alt="thumbnail">
-        </div>
-
+        <!-- 마크다운 영역 -->
         <div class="post-body"></div>
 
-        <!-- 하단 반응 버튼 -->
+        <!-- 하단 버튼 -->
         <div class="reaction-bar">
           <button id="likeBtn" class="btn btn-light border-0 d-flex align-items-center gap-1"
                   th:data-post-id="${post.id}" th:data-liked="${liked}">
             <span id="heartIcon" th:text="${liked} ? '❤️' : '🤍'"></span>
-            <span id="likeCount" th:text="${likeCount}">0</span>
+            <span id="likeCount" th:text="${likeCount}"></span>
             <span>좋아요</span>
           </button>
 
@@ -124,7 +122,7 @@
   </div>
 </div>
 
-<!-- 하단 -->
+<!-- Footer -->
 <div th:replace="~{layout/footer :: footer}"></div>
 
 <!-- Scripts -->
@@ -141,17 +139,22 @@
 <script src="/js/comments.js" defer></script>
 <script src="/js/postdetail.js" defer></script>
 
-<!-- 마크다운 렌더링 -->
+<!-- 마크다운 렌더링 (변경 핵심) -->
 <script th:inline="javascript">
   document.addEventListener("DOMContentLoaded", () => {
-    const rawTitle = `[[${post.title}]]`;
-    const rawMarkdown = `[[${post.content}]]`;
+
+    const rawTitle = /*[[${post.title}]]*/ "";
+    const rawMarkdown = /*[[${post.content}]]*/ "";
 
     const titleElement = document.getElementById("markdownTitle");
-    if (titleElement && rawTitle) titleElement.innerHTML = marked.parseInline(rawTitle);
+    if (rawTitle) {
+      titleElement.innerHTML = marked.parseInline(rawTitle);
+    }
 
     const contentElement = document.querySelector(".post-body");
-    if (contentElement && rawMarkdown) contentElement.innerHTML = marked.parse(rawMarkdown);
+    if (rawMarkdown) {
+      contentElement.innerHTML = marked.parse(rawMarkdown);
+    }
   });
 </script>
 

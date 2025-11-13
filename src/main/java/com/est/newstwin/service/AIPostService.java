@@ -15,22 +15,26 @@ public class AIPostService {
     private final PostRepository postRepository;
 
     @Transactional
-    public Post saveAiPost(Member aiMember, Category category, String markdown, String json, String title) {
+    public Post saveAiPost(
+            Member aiMember,
+            Category category,
+            String markdown,
+            String json,
+            String title,
+            String thumbnailUrl
+    ) {
+
         Post post = Post.builder()
                 .member(aiMember)
                 .category(category)
                 .type("news")
                 .title(title)
                 .content(markdown)
-                .isActive(true)
-                .count(0)
-                .thumbnailUrl(null)
+                .thumbnailUrl(thumbnailUrl)
                 .analysisJson(json)
+                .count(0)
+                .isActive(true)
                 .build();
-
-        // JSON은 엔티티 필드 추가 필요
-        // 예: @Column(columnDefinition = "JSONB") private String analysisJson;
-        // post.setAnalysisJson(json);
 
         return postRepository.save(post);
     }

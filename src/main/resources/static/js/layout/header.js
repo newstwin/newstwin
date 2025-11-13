@@ -4,12 +4,12 @@
  * - 로그아웃 처리
  */
 document.addEventListener("DOMContentLoaded", async () => {
-    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutLink = document.querySelector("a[href='/logout']");
     const profileImgEl = document.getElementById("headerProfileImg");
 
     // 로그아웃 처리
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async (e) => {
+    if (logoutLink) {
+        logoutLink.addEventListener("click", async (e) => {
             e.preventDefault();
             try {
                 await fetch("/api/auth/logout", { method: "POST" });

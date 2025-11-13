@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.mock.web.MockMultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -14,8 +15,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,7 +38,7 @@ public class PhotoService {
             @Value("${aws.region}") String region,
             @Value("${aws.s3.bucket-name}") String bucketName,
             @Value("${spring.profiles.active:local}") String activeProfile
-    ) {
+    ) throws IOException {
         this.photoRepository = photoRepository;
         this.bucketName = bucketName;
         this.region = region;
@@ -51,6 +53,30 @@ public class PhotoService {
     }
 
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
+
+
+    // ============================================================
+    // URL → 이미지 다운로드 → MultipartFile 변환 → 저장
+    // ============================================================
+    public Photo savePhotoFromUrl(String imageUrl) throws IOException {
+        URL url = new URL(imageUrl);
+        String filename = UUID.randomUUID().toString() + ".png";
+
+        try (InputStream input = url.openStream()) {
+
+            byte[] imageBytes = input.readAllBytes();
+
+            MultipartFile file = new MockMultipartFile(
+                    filename,
+                    filename,
+                    "image/png",
+                    imageBytes
+            );
+
+            return savePhoto(file);
+        }
+    }
+
 
     /**
      * S3 → 실패 시 로컬로 자동 폴백
@@ -147,7 +173,7 @@ public class PhotoService {
                     .build();
             s3Client.deleteObject(deleteRequest);
         } catch (Exception e) {
-            System.err.println("[S3 파일 삭제 실패] " + e.getMessage());
+            System.err.println("[S3 삭제 실패] " + e.getMessage());
         }
     }
 }

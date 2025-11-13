@@ -18,116 +18,147 @@ public class NewsPipelineService {
     private final AlanApiService alanApiService;
     private final ChatGPTService chatGPTService;
     private final AIPostService aiPostService;
+    private final PhotoService photoService;
 
-    // 세션 내 중복 뉴스 추적용
+    /**
+     * 중복 URL 방지용 전역 Set
+     */
     private final Set<String> usedUrls = new HashSet<>();
 
-    // URL 검증용 정규식
-    private static final Pattern URL_PATTERN = Pattern.compile("https?://[\\w\\-\\.]+(?:/[^\\s]*)?");
+    /**
+     * URL 추출 정규식
+     */
+    private static final Pattern URL_PATTERN =
+            Pattern.compile("https?://[\\w\\-\\.]+(?:/[^\\s]*)?");
 
+    /**
+     * 카테고리 단위 파이프라인 처리
+     */
     public void processCategory(Category category, Member aiMember) {
-        log.info("🟢 [Pipeline 시작] 카테고리: {}", category.getCategoryName());
+
+        String categoryName = category.getCategoryName();
+        log.info("[Pipeline 시작] category={}", categoryName);
 
         try {
-            // 1️⃣ Alan 호출 + URL 검증 + 중복 제거
-            String alanText = fetchAlanNewsWithRetry(category, 3); // 최대 3회 재시도
+            // 1. Alan API 호출 + URL 검증 + 중복 방지
+            log.info("[Alan 호출 시작] category={}", categoryName);
+            String alanText = fetchAlanNewsWithRetry(category, 3);  // 최대 3회 재시도
 
             if (alanText == null || alanText.isBlank()) {
-                log.warn("🚫 Alan 응답이 비어 있습니다. category={}", category.getCategoryName());
+                log.warn("[Alan 응답 없음] category={}", categoryName);
+                log.info("[Pipeline 종료] category={}", categoryName);
                 return;
             }
 
-            // Alan 결과 미리보기
-            log.info("⭐ Alan 응답 미리보기:\n{}", preview(alanText));
+            log.info("[Alan 응답 확보] 길이={} chars", alanText.length());
+            log.debug("[Alan 응답 미리보기]\n{}", preview(alanText));
 
-            // 2️⃣ ChatGPT - Markdown 분석
-            log.info("⭐ ChatGPT 분석 (Markdown) 요청 중...");
+            // 2. ChatGPT Markdown 분석
+            log.info("[ChatGPT 분석(Markdown) 요청]");
             String markdown = chatGPTService.analyzeMarkdown(alanText);
-            log.info("✅ Markdown 분석 완료 (길이: {} chars)", markdown != null ? markdown.length() : 0);
-            log.info("⭐ Markdown 미리보기:\n{}", preview(markdown));
+            log.info("[Markdown 분석 완료] length={}", markdown != null ? markdown.length() : 0);
+            log.debug("[Markdown 미리보기]\n{}", preview(markdown));
 
-            // 3️⃣ ChatGPT - JSON 변환
-            log.info("⭐ ChatGPT JSON 변환 요청 중...");
+            // 3. ChatGPT JSON 변환
+            log.info("[ChatGPT JSON 변환 요청]");
             String json = chatGPTService.analyzeJson(markdown);
-            log.info("✅ JSON 변환 완료 (길이: {} chars)", json != null ? json.length() : 0);
-            log.info("⭐ JSON 미리보기:\n{}", preview(json));
+            log.info("[JSON 변환 완료] length={}", json != null ? json.length() : 0);
+            log.debug("[JSON 미리보기]\n{}", preview(json));
 
-            // 4️⃣ ChatGPT - 제목 생성
-            log.info("⭐ ChatGPT 제목 생성 중...");
+            // 4. 제목 생성
+            log.info("[ChatGPT 제목 생성 요청]");
             String title = chatGPTService.generateTitle(markdown);
-            log.info("✅ 제목 생성 완료: {}", title);
+            log.info("[제목 생성 완료] title={}", title);
 
-            // 5️⃣ 게시글 저장
-            log.info("⭐ AI 게시글 저장 시작...");
-            aiPostService.saveAiPost(aiMember, category, markdown, json, title);
-            log.info("✅ 게시글 저장 성공: [카테고리: {}, 제목: {}]", category.getCategoryName(), title);
+            // 5. 대표 이미지 생성
+            log.info("[대표 이미지 생성 요청]");
+            String imageUrl = chatGPTService.generateRepresentativeImage(markdown);
+            log.info("[대표 이미지 생성 완료] imageUrl={}", imageUrl);
+
+            // 6. 이미지 S3 저장 (필요 시 PhotoService 이용)
+            String finalImageUrl = imageUrl;
+            log.info("[대표 이미지 S3 저장 완료] url={}", finalImageUrl);
+
+            // 7. Markdown 맨 위에 이미지 삽입
+            String markdownWithImage =
+                    "![대표 이미지](" + finalImageUrl + ")\n\n" + markdown;
+
+            // 8. 게시글 저장
+            log.info("[AI 게시글 저장 시작] category={}, title={}", categoryName, title);
+            aiPostService.saveAiPost(aiMember, category, markdownWithImage, json, title, finalImageUrl);
+            log.info("[AI 게시글 저장 완료] category={}, title={}", categoryName, title);
 
         } catch (Exception e) {
-            log.error("❌ [Pipeline Error: {}] {}", category.getCategoryName(), e.getMessage(), e);
+            log.error("[Pipeline 실패] category={}, message={}", categoryName, e.getMessage(), e);
         }
 
-        log.info("⭐ [Pipeline 종료] 카테고리: {}", category.getCategoryName());
+        log.info("[Pipeline 종료] category={}", categoryName);
     }
 
+
     /**
-     * Alan 호출 + URL 검증 + 중복 제거 + 재시도 로직
+     * Alan에서 뉴스 가져오기 + URL 존재 검증 + 재시도 로직
      */
     private String fetchAlanNewsWithRetry(Category category, int maxRetry) {
+        String categoryName = category.getCategoryName();
+
         for (int attempt = 1; attempt <= maxRetry; attempt++) {
-            log.info("⭐ Alan API 호출 (시도 {} / {}) ...", attempt, maxRetry);
-            String alanText = alanApiService.fetchNews(category.getCategoryName(), usedUrls);
+            log.info("[Alan 재시도] category={}, attempt={}/{}", categoryName, attempt, maxRetry);
+
+            String alanText = alanApiService.fetchNews(categoryName, usedUrls);
 
             if (alanText == null || alanText.isBlank()) {
-                log.warn("⚠️ Alan 응답이 비어 있음 → 재시도");
+                log.warn("[Alan 빈 응답] attempt={}", attempt);
                 continue;
             }
 
-            // 유효 URL 추출
             Set<String> urls = extractUrls(alanText);
+
             if (urls.isEmpty()) {
-                log.warn("⚠️ Alan 응답에 유효한 URL 없음 → 재시도");
+                log.warn("[Alan 응답에 URL 없음] attempt={}", attempt);
                 continue;
             }
 
-            // 중복 URL 제거
-            Set<String> duplicateUrls = new HashSet<>(urls);
-            duplicateUrls.retainAll(usedUrls);
-
-            if (!duplicateUrls.isEmpty()) {
-                log.warn("⚠️ 중복된 URL 발견 ({}개): {}", duplicateUrls.size(), duplicateUrls);
-                // Alan에게 중복된 키워드(url 일부)를 제외 조건으로 다시 요청
+            // 중복 URL 여부 검사
+            boolean hasDuplicate = urls.stream().anyMatch(usedUrls::contains);
+            if (hasDuplicate) {
+                log.warn("[중복 URL 발견] attempt={}, urls={}", attempt, urls);
                 continue;
             }
 
-            // 중복 없음 → 성공
+            // 새 URL 추가
             usedUrls.addAll(urls);
-            log.info("✅ 새로운 URL {}개 수집됨 (누적 총 {}개)", urls.size(), usedUrls.size());
+            log.info("[URL 확보 완료] urls={}", urls);
+
             return alanText;
         }
 
-        log.error("🚫 Alan 뉴스 3회 시도 후에도 유효/비중복 뉴스 확보 실패: {}", category.getCategoryName());
+        log.error("[Alan 실패] category={} / URL 확보 실패", categoryName);
         return null;
     }
 
+
     /**
-     * Alan 응답 내 URL 목록 추출
+     * 문자열에서 URL 추출
      */
     private Set<String> extractUrls(String text) {
         Set<String> urls = new HashSet<>();
-        if (text == null || text.isBlank()) return urls;
-
-        Matcher matcher = URL_PATTERN.matcher(text);
-        while (matcher.find()) {
-            urls.add(matcher.group());
+        Matcher m = URL_PATTERN.matcher(text);
+        while (m.find()) {
+            urls.add(m.group());
         }
         return urls;
     }
 
     /**
-     * 응답 문자열 미리보기 (길면 앞부분 500자만)
+     * 실제 로그에선 텍스트가 너무 길지 않게 앞부분만 보여줌
      */
     private String preview(String text) {
-        if (text == null) return "(null)";
-        return text.length() > 500 ? text.substring(0, 600) + "..." : text;
+        if (text == null) {
+            return "(null)";
+        }
+        return text.length() > 500
+                ? text.substring(0, 500) + "..."
+                : text;
     }
 }

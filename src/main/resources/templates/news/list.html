@@ -26,9 +26,11 @@
 
     <!-- Main -->
     <main class="col-12 col-md-9 col-lg-10 p-4 px-5">
-      <!-- Header / Filter -->
+
+      <!-- Header -->
       <div class="list-header d-flex justify-content-between align-items-center mb-4"
            th:with="s=${sort ?: 'createdAt,desc'}, sortLabel=${#strings.startsWith(s,'count') ? '인기순' : (#strings.endsWith(s,'asc') ? '오래된순' : '최신순')}">
+
         <h5 class="category-title" th:text="${categoryName == 'all' ? '전체' : categoryName}"></h5>
 
         <div class="d-flex align-items-center gap-3 ms-auto">
@@ -60,19 +62,29 @@
           <div class="card list-card shadow-sm">
             <div class="card-body">
               <div class="row g-3 align-items-center">
+
+                <!-- Thumbnail -->
                 <div class="col-3 col-sm-2">
                   <div class="card-thumb">
                     <img th:src="${post.thumbnailUrl}" alt="thumb">
                   </div>
                 </div>
+
+                <!-- Text -->
                 <div class="col">
                   <h6 class="post-title mb-1" th:text="${post.title}">제목</h6>
+
                   <div class="post-meta small mb-2">
                     <span th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}"></span>
                     · 조회수 <span th:text="${post.count}"></span>
                   </div>
-                  <p class="post-preview small text-muted" th:text="${post.content}">요약 내용</p>
+
+                  <!-- 🔥 markdown 전체 대신 요약만 -->
+                  <p class="post-preview small text-muted"
+                     th:text="${#strings.abbreviate(post.content, 120)}">
+                  </p>
                 </div>
+
               </div>
             </div>
           </div>
@@ -99,6 +111,7 @@
           </li>
         </ul>
       </nav>
+
     </main>
   </div>
 </div>
@@ -115,5 +128,6 @@
   const MEMBER_RECEIVE_EMAIL = [[${memberReceiveEmail}]];
   const IS_LOGGED_IN = [[${isLoggedIn}]];
 </script>
+
 </body>
 </html>
