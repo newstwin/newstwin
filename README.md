@@ -82,50 +82,163 @@ https://www.notion.so/oreumi/5-NT-NewsTwin-299ebaa8982b80b6b9b6e7ce37a89583
 # 🗂️ 디렉토리 구조
 
 <pre>
-NewsTwin
-  │  index.html
+newstwin
+  │  NewstwinApplication.class
   │
-  ├─admin
-  │      comments.html
-  │      dashboard.html
-  │      login.html
-  │      mails-contents.html
-  │      mails.html
-  │      posts-contents.html
-  │      posts.html
-  │      users.html
+  ├─config
+  │  │  AlanAIConfig.class
+  │  │  AsyncConfig.class
+  │  │  OpenAIConfig.class
+  │  │  SchedulerConfig.class
+  │  │  SecurityConfig.class
+  │  │  SwaggerConfig.class
+  │  │  WebConfig.class
+  │  │
+  │  ├─jwt
+  │  │      JwtAuthenticationFilter.class
+  │  │      JwtTokenProvider.class
+  │  │
+  │  └─oauth2
+  │          CustomOAuth2User.class
+  │          CustomOAuth2UserService.class
+  │          OAuth2SuccessHandler.class
   │
-  ├─auth
-  │      login.html
-  │      signup.html
-  │      verify-info.html
-  │      verify-result.html
+  ├─controller
+  │  ├─api
+  │  │      AiSchedulerController.class
+  │  │      AlanApiController.class
+  │  │      AuthController.class
+  │  │      BookmarkApiController.class
+  │  │      ChatGPTController.class
+  │  │      CommentApiController.class
+  │  │      HomeApiController.class
+  │  │      LikeApiController.class
+  │  │      MemberController.class
+  │  │      MypageController.class
+  │  │      NewsPipelineController.class
+  │  │      SubscriptionApiController.class
+  │  │
+  │  └─page
+  │          AdminController.class
+  │          BoardController.class
+  │          MypagePageController.class
+  │          PageController.class
+  │          PostController.class
   │
-  ├─board
-  │      detail.html
-  │      form.html
-  │      list.html
+  ├─domain
+  │      Bookmark$BookmarkBuilder.class
+  │      Bookmark.class
+  │      Category$CategoryBuilder.class
+  │      Category.class
+  │      Comment$CommentBuilder.class
+  │      Comment.class
+  │      EmailVerificationToken$EmailVerificationTokenBuilder.class
+  │      EmailVerificationToken.class
+  │      Like$LikeBuilder.class
+  │      Like.class
+  │      MailLog$MailLogBuilder.class
+  │      MailLog.class
+  │      Member$MemberBuilder.class
+  │      Member$Role.class
+  │      Member.class
+  │      Photo$PhotoBuilder.class
+  │      Photo.class
+  │      Post$PostBuilder.class
+  │      Post.class
+  │      Term$TermBuilder.class
+  │      Term.class
+  │      UserSubscription$UserSubscriptionBuilder.class
+  │      UserSubscription.class
   │
-  ├─fragment
-  │      modal.html
+  ├─dto
+  │  ├─api
+  │  │      ApiResponse.class
+  │  │      CategoryDto$CategoryDtoBuilder.class
+  │  │      CategoryDto.class
+  │  │      CategoryViewDto.class
+  │  │      PostRequestDto.class
+  │  │      PostResponseDto.class
+  │  │
+  │  ├─auth
+  │  │      LoginRequestDto$LoginRequestDtoBuilder.class
+  │  │      LoginRequestDto.class
+  │  │      LoginResponseDto$LoginResponseDtoBuilder.class
+  │  │      LoginResponseDto.class
+  │  │
+  │  ├─member
+  │  │      EmailVerificationResponseDto.class
+  │  │      MemberRequestDto$MemberRequestDtoBuilder.class
+  │  │      MemberRequestDto.class
+  │  │      MemberResponseDto$MemberResponseDtoBuilder.class
+  │  │      MemberResponseDto.class
+  │  │      MemberUpdateRequestDto.class
+  │  │
+  │  ├─mypage
+  │  │      BookmarkPostResponseDto$BookmarkPostResponseDtoBuilder.class
+  │  │      BookmarkPostResponseDto.class
+  │  │      SubscriptionRequestDto.class
+  │  │      SubscriptionResponseDto$SubscriptionResponseDtoBuilder.class
+  │  │      SubscriptionResponseDto.class
+  │  │
+  │  └─post
+  │          BookmarkStateResponseDto.class
+  │          BookmarkToggleRequestDto.class
+  │          BookmarkToggleResponseDto.class
+  │          CommentCreateRequest.class
+  │          CommentPageResponse.class
+  │          LikeStateResponseDto.class
+  │          LikeToggleRequestDto.class
+  │          LikeToggleResponseDto.class
+  │          NestedCommentResponseDto.class
+  │          PostDetailDto.class
+  │          PostSummaryDto.class
   │
-  ├─layout
-  │      footer.html
-  │      header.html
-  │      header_admin.html
-  │      pagination.html
-  │      sidebar.html
+  ├─exception
+  │      CustomException.class
+  │      ErrorCode.class
+  │      ErrorResponse$ErrorResponseBuilder.class
+  │      ErrorResponse.class
+  │      GlobalExceptionHandler.class
   │
-  ├─mypage
-  │      bookmarks.html
-  │      edit.html
-  │      main.html
-  │      subscription.html
-  │      withdraw.html
+  ├─repository
+  │      BookmarkRepository.class
+  │      CategoryRepository.class
+  │      CommentRepository.class
+  │      EmailVerificationTokenRepository.class
+  │      LikeRepository.class
+  │      MailLogRepository.class
+  │      MemberRepository.class
+  │      PhotoRepository.class
+  │      PostRepository.class
+  │      TermRepository.class
+  │      UserSubscriptionRepository.class
   │
-  └─news
-          detail.html
-          list.html
+  ├─scheduler
+  │      AiScheduler.class
+  │      NewsletterScheduler.class
+  │
+  └─service
+          AdminService.class
+          AIPostService.class
+          AlanApiService.class
+          AuthService.class
+          BookmarkService.class
+          CategoryService.class
+          ChatGPTService.class
+          CommentService.class
+          EmailAsyncService.class
+          EmailService.class
+          LikeService$ToggleResult.class
+          LikeService.class
+          MailLogService.class
+          MemberService.class
+          MypageService.class
+          NewsPipelineService.class
+          PhotoService.class
+          PostService.class
+          SubscriptionService.class
+          TermAnnotater.class
+          TermCacheService.class
 </pre>
 
 ---
@@ -139,12 +252,15 @@ NewsTwin
 <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
 <img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"/>
 <img src="https://img.shields.io/badge/JPA-Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white"/>
+<img src="https://img.shields.io/badge/SpringScheduler-4CAF50?style=for-the-badge&logo=spring&logoColor=white"/>
+<img src="https://img.shields.io/badge/SpringMail-EA4335?style=for-the-badge&logo=gmail&logoColor=white"/>
 
 ### **Database**
 <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
+<img src="https://img.shields.io/badge/H2-323330?style=for-the-badge&logo=h2&logoColor=white"/>
 
 ### **AI / External API**
-<img src="https://img.shields.io/badge/OpenAI-ChatGPT-74AA9C?style=for-the-badge&logo=openai&logoColor=white"/>
+<img src="https://img.shields.io/badge/OpenAI_ChatGPT-74AA9C?style=for-the-badge&logo=openai&logoColor=white"/>
 <img src="https://img.shields.io/badge/AlanAI-000000?style=for-the-badge&logoColor=white"/>
 
 ### **Frontend**
@@ -152,16 +268,14 @@ NewsTwin
 <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white"/>
 
+### **DevOps / Deployment**
+<img src="https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/AWS_RDS-527FFF?style=for-the-badge&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white"/>
+
 ### **Collaboration**
 <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/>
 <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
 
 </div>
-
----
-
-## 🏅 Stats
-
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ysy98081&layout=compact&bg_color=180,12a3d3,00000000&title_color=000000&text_color=000000"/>
-</p>
