@@ -94,7 +94,8 @@ if (form) {
         }
 
         try {
-            const response = await fetch("/api/mypage/me", {
+            // --- 회원 정보 수정 ---
+            const response = await csrfFetch("/api/mypage/me", {
                 method: "POST",
                 body: formData,
             });
@@ -105,12 +106,13 @@ if (form) {
                 return;
             }
 
+            // --- 구독 설정 수정 ---
             const subscriptionData = {
                 receiveEmail: receiveTrue.checked,
                 categoryIds: selectedCategories,
             };
 
-            const res2 = await fetch("/api/mypage/subscription", {
+            const res2 = await csrfFetch("/api/mypage/subscription", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(subscriptionData),

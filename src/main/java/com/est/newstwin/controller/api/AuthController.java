@@ -4,6 +4,7 @@ import com.est.newstwin.dto.api.ApiResponse;
 import com.est.newstwin.dto.auth.LoginRequestDto;
 import com.est.newstwin.dto.auth.LoginResponseDto;
 import com.est.newstwin.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import java.time.Duration;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class  AuthController {
 
     private final AuthService authService;
 
@@ -29,15 +30,18 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> login(
             @Valid @RequestBody LoginRequestDto requestDto,
-            HttpServletResponse response) {
+            HttpServletResponse response,
+            HttpServletRequest request) {
 
         // 로그인 처리 및 JWT 발급
         LoginResponseDto loginResponse = authService.login(requestDto);
 
+        boolean isSecure = request.isSecure();
+
         // HttpOnly 쿠키로 Access Token 전달
         ResponseCookie cookie = ResponseCookie.from("accessToken", loginResponse.getAccessToken())
                 .httpOnly(true)       // JS에서 접근 불가 → XSS 방지
-                .secure(false)        // HTTPS 환경이면 true로 변경
+                .secure(isSecure)     // HTTPS 환경이면 true로 변경
                 .path("/")            // 모든 경로에서 접근 가능
                 .maxAge(Duration.ofHours(1)) // 만료시간 설정
                 .sameSite("Lax")      // 기본은 Lax
@@ -54,12 +58,14 @@ public class AuthController {
      * - accessToken 쿠키 만료시켜 제거
      */
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response, HttpServletRequest request) {
+
+        boolean isSecure = request.isSecure();
 
         // accessToken 쿠키를 만료시켜 클라이언트에서 삭제
         ResponseCookie expiredCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(isSecure)
                 .path("/")
                 .sameSite("Lax")
                 .maxAge(0)

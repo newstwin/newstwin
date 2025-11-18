@@ -5,17 +5,17 @@
 // 구독 여부 선택 시 카테고리 영역 토글
 const subscribeTrue = document.getElementById("subscribeTrue");
 const subscribeFalse = document.getElementById("subscribeFalse");
-const categorySection = document.getElementById("categorySection");
+const categorySection2 = document.getElementById("categorySection");
 
-function toggleCategorySection() {
-    if (!categorySection) return;
-    categorySection.style.display = subscribeTrue.checked ? "block" : "none";
+function toggleCategorySection2() {
+    if (!categorySection2) return;
+    categorySection2.style.display = subscribeTrue.checked ? "block" : "none";
 }
 
 if (subscribeTrue && subscribeFalse) {
-    subscribeTrue.addEventListener("change", toggleCategorySection);
-    subscribeFalse.addEventListener("change", toggleCategorySection);
-    toggleCategorySection();
+    subscribeTrue.addEventListener("change", toggleCategorySection2);
+    subscribeFalse.addEventListener("change", toggleCategorySection2);
+    toggleCategorySection2();
 }
 
 //  구독중인 카테고리 체크박스 자동 선택
@@ -26,7 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const label = document.querySelector(`label[for='${checkbox.id}']`);
             if (subscribedCategories.includes(label.textContent.trim())) {
                 checkbox.checked = true;
-                label.classList.add("active"); // 선택된 버튼 시각 강조
+                label.classList.add("active");
             }
         });
     }
@@ -47,10 +47,8 @@ if (saveBtn) {
             categoryIds: selectedCategories,
         };
 
-        console.log("구독 설정 전송:", data);
-
         try {
-            const res = await fetch("/api/mypage/subscription", {
+            const res = await csrfFetch("/api/mypage/subscription", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),

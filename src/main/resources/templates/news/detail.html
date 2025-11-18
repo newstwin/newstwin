@@ -136,15 +136,16 @@
 <!-- Footer -->
 <div th:replace="~{layout/footer :: footer}"></div>
 
-<!-- JS 라이브러리 -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <!-- 공통 JS -->
+<script src="/js/common/csrfFetch.js" defer></script>
 <script src="/js/layout/header.js" defer></script>
 <script src="/js/subscription.js" defer></script>
 <script src="/js/comments.js" defer></script>
 <script src="/js/postdetail.js" defer></script>
+
+<!-- JS 라이브러리 (마지막) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
 
 <!-- 전역 상태 (subscription.js에서 사용) -->
 <script th:inline="javascript">

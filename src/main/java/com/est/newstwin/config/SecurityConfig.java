@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @RequiredArgsConstructor
@@ -28,8 +29,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // JWT 사용 시 CSRF 비활성화
-                .csrf(csrf -> csrf.disable())
+                // JWT + API 사용
+                // - 뷰(폼 전송)에는 CSRF 토큰 사용
+                // - /api/**, H2 콘솔 등은 CSRF 검사에서 제외
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers(
+                                "/api/**",         // REST API는 JWT로만 보호 (CSRF 검사 제외)
+                                "/h2-console/**"   // H2 콘솔
+                        )
+                )
 
                 // H2 콘솔 사용을 위해 frameOptions 허용
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
@@ -53,10 +62,10 @@ public class SecurityConfig {
                                 "/unsubscribe"
                         ).permitAll()
 
-                        // 비로그인 사용자만 접근 가능 (로그인 상태면 접근 불가)
-                        .requestMatchers("/login", "/signup").anonymous()
+                        // 로그인 / 회원가입 페이지는 누구나 접근 가능
+                        .requestMatchers("/login", "/signup").permitAll()
 
-                        // 관리자 로그인 페이지는 누구나 접근 가능해야 함
+                        // 관리자 로그인 페이지는 누구나 접근 가능
                         .requestMatchers("/admin/login").permitAll()
 
                         // 인증 없이 접근 가능한 페이지
@@ -76,16 +85,16 @@ public class SecurityConfig {
                                 "/api/members/signup",         // 회원가입 API
                                 "/api/members/verify",         // API 방식 인증 (모바일/테스트용)
                                 "/api/members/resend-verification",
-                                "/api/members/me",             // (개발용) 로그인 확인 API
+                                "/api/members/me",             // 로그인 확인 API
                                 "/api/members/check-email",    // 이메일 중복 확인 API
                                 "/api/members/exists",         // 이메일 존재 여부 확인
                                 "/api/chatgpt/**",
                                 "/api/alan/**",
                                 "/api/pipeline/**",
-                                "/api/home/**"                 // ← 누락됐던 슬래시 보정
+                                "/api/home/**"
                         ).permitAll()
 
-                        //게시판 접근정책
+                        // 게시판 접근 정책
                         .requestMatchers(
                                 "/board",
                                 "/board/",
@@ -98,7 +107,7 @@ public class SecurityConfig {
                                 "/board/delete/**"
                         ).authenticated()
 
-                    // 좋아요/북마크 조회는 누구나 허용
+                        // 좋아요/북마크 조회는 누구나 허용
                         .requestMatchers(HttpMethod.GET,
                                 "/api/posts/*/like",
                                 "/api/posts/*/like/count",
@@ -142,21 +151,25 @@ public class SecurityConfig {
 
                 // 접근 거부/미인증 처리
                 .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint((request, response, authException) -> {
-                      String uri = request.getRequestURI();
-                      // 댓글 / 좋아요 / 북마크 API 전용 401 처리
-                      if (uri.startsWith("/api/posts") & (uri.contains("/like") || uri.contains("/bookmark") || uri.contains("/comments"))) {
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return;
-                      }
-                      
-                      if (uri.startsWith("/admin")) {
-                        response.sendRedirect("/admin/login");
-                      } else {
-                        response.sendRedirect("/login");
-                      }
-                    })
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String uri = request.getRequestURI();
+
+                            // 댓글 / 좋아요 / 북마크 API 전용 401 처리
+                            if (uri.startsWith("/api/posts") &&
+                                    (uri.contains("/like") || uri.contains("/bookmark") || uri.contains("/comments"))) {
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                return;
+                            }
+
+                            // 관리자 영역
+                            if (uri.startsWith("/admin")) {
+                                response.sendRedirect("/admin/login");
+                            } else {
+                                response.sendRedirect("/login");
+                            }
+                        })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            // CSRF 등 권한 부족 시
                             response.sendRedirect("/");
                         })
                 );
@@ -165,7 +178,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
