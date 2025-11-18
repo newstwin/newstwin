@@ -126,58 +126,39 @@ newstwin
   │          PostController.class
   │
   ├─domain
-  │      Bookmark$BookmarkBuilder.class
   │      Bookmark.class
-  │      Category$CategoryBuilder.class
   │      Category.class
-  │      Comment$CommentBuilder.class
   │      Comment.class
-  │      EmailVerificationToken$EmailVerificationTokenBuilder.class
   │      EmailVerificationToken.class
-  │      Like$LikeBuilder.class
   │      Like.class
-  │      MailLog$MailLogBuilder.class
   │      MailLog.class
-  │      Member$MemberBuilder.class
-  │      Member$Role.class
   │      Member.class
-  │      Photo$PhotoBuilder.class
   │      Photo.class
-  │      Post$PostBuilder.class
   │      Post.class
-  │      Term$TermBuilder.class
   │      Term.class
-  │      UserSubscription$UserSubscriptionBuilder.class
   │      UserSubscription.class
   │
   ├─dto
   │  ├─api
   │  │      ApiResponse.class
-  │  │      CategoryDto$CategoryDtoBuilder.class
   │  │      CategoryDto.class
   │  │      CategoryViewDto.class
   │  │      PostRequestDto.class
   │  │      PostResponseDto.class
   │  │
   │  ├─auth
-  │  │      LoginRequestDto$LoginRequestDtoBuilder.class
   │  │      LoginRequestDto.class
-  │  │      LoginResponseDto$LoginResponseDtoBuilder.class
   │  │      LoginResponseDto.class
   │  │
   │  ├─member
   │  │      EmailVerificationResponseDto.class
-  │  │      MemberRequestDto$MemberRequestDtoBuilder.class
   │  │      MemberRequestDto.class
-  │  │      MemberResponseDto$MemberResponseDtoBuilder.class
   │  │      MemberResponseDto.class
   │  │      MemberUpdateRequestDto.class
   │  │
   │  ├─mypage
-  │  │      BookmarkPostResponseDto$BookmarkPostResponseDtoBuilder.class
   │  │      BookmarkPostResponseDto.class
   │  │      SubscriptionRequestDto.class
-  │  │      SubscriptionResponseDto$SubscriptionResponseDtoBuilder.class
   │  │      SubscriptionResponseDto.class
   │  │
   │  └─post
@@ -196,7 +177,6 @@ newstwin
   ├─exception
   │      CustomException.class
   │      ErrorCode.class
-  │      ErrorResponse$ErrorResponseBuilder.class
   │      ErrorResponse.class
   │      GlobalExceptionHandler.class
   │
@@ -228,7 +208,6 @@ newstwin
           CommentService.class
           EmailAsyncService.class
           EmailService.class
-          LikeService$ToggleResult.class
           LikeService.class
           MailLogService.class
           MemberService.class
