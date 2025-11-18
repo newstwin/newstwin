@@ -38,6 +38,7 @@
         </div>
     </div>
 </main>
+<script src="/js/common/csrfFetch.js" defer></script>
 
 <script>
     document.getElementById("resendForm")?.addEventListener("submit", async (e) => {
@@ -47,7 +48,9 @@
         msg.textContent = "처리 중입니다...";
 
         try {
-            const res = await fetch(`/api/members/resend-verification?email=${encodeURIComponent(email)}`, { method: "POST" });
+            const res = await csrfFetch(`/api/members/resend-verification?email=${encodeURIComponent(email)}`, {
+                method: "POST"
+            });
             const data = await res.json();
             msg.textContent = data.message || "이메일 재발송 요청이 완료되었습니다.";
         } catch {
@@ -63,5 +66,7 @@
         setTimeout(() => { window.location.href = '/login'; }, seconds * 1000);
     }
 </script>
+
+
 </body>
 </html>

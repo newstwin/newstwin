@@ -30,8 +30,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication)
-            throws IOException, ServletException {
+            Authentication authentication) throws IOException, ServletException {
 
         CustomOAuth2User oAuthUser = (CustomOAuth2User) authentication.getPrincipal();
         Member member = oAuthUser.getMember();
@@ -39,16 +38,18 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // JWT 발급
         String accessToken = jwtTokenProvider.generateToken(member);
 
+        boolean isSecure = request.isSecure(); // prod(https)에서는 true
+
         // HttpOnly 쿠키에 저장
-        ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(isSecure)
                 .path("/")
                 .maxAge(Duration.ofHours(1))
                 .sameSite("Lax")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
         // 홈으로 리다이렉트
         response.sendRedirect("/");

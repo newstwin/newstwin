@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
 @RequiredArgsConstructor
@@ -14,16 +16,37 @@ public class PageController {
 
     private final MemberService memberService;
 
+    private boolean isLoggedIn() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        return auth != null && auth.isAuthenticated()
+                && !"anonymousUser".equals(auth.getPrincipal());
+    }
+
     /* ---------- 홈 ---------- */
     @GetMapping("/")
-    public String home() { return "index"; }
+    public String home() {
+        return "index";
+    }
 
     /* ---------- 인증 (Auth) ---------- */
     @GetMapping("/login")
-    public String loginPage() { return "auth/login"; }
+    public String loginPage() {
+        if (isLoggedIn()) {
+            return "redirect:/";
+        }
+
+        return "auth/login";
+    }
 
     @GetMapping("/signup")
-    public String signupPage() { return "auth/signup"; }
+    public String signupPage() {
+        if (isLoggedIn()) {
+            return "redirect:/";
+        }
+
+        return "auth/signup";
+    }
 
     /**
      * 이메일 인증 결과 페이지
@@ -53,9 +76,13 @@ public class PageController {
 
     /* ---------- 관리자 (Admin) ---------- */
     @GetMapping("/admin/login")
-    public String adminLogin() { return "admin/login"; }
+    public String adminLogin() {
+        return "admin/login";
+    }
 
     @GetMapping("/admin/posts-contents")
-    public String adminPostsContents() { return "admin/posts-contents"; }
+    public String adminPostsContents() {
+        return "admin/posts-contents";
+    }
 
 }

@@ -18,13 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const params = new URLSearchParams(window.location.search);
 
-    // URL 파라미터로 전달된 이메일 자동 입력
     const emailParam = params.get("email");
-    if (emailParam) {
-        emailInput.value = emailParam;
-    }
+    if (emailParam) emailInput.value = emailParam;
 
-    // 🔹 비밀번호 표시/숨김 토글
+
     togglePasswordBtn.addEventListener("click", () => {
         const isHidden = passwordInput.type === "password";
         passwordInput.type = isHidden ? "text" : "password";
@@ -33,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
         icon.classList.toggle("bi-eye-slash", !isHidden);
     });
 
-    // 🔹 비밀번호 확인 표시/숨김 토글
     toggleConfirmBtn.addEventListener("click", () => {
         const isHidden = confirmInput.type === "password";
         confirmInput.type = isHidden ? "text" : "password";
@@ -42,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
         icon.classList.toggle("bi-eye-slash", !isHidden);
     });
 
-    // 🔹 이메일 중복확인 버튼 클릭
     checkEmailBtn.addEventListener("click", async () => {
         const email = emailInput.value.trim();
         if (!validateEmail(email)) {
@@ -71,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 🔹 비밀번호 실시간 유효성 검사
     passwordInput.addEventListener("input", () => {
         const password = passwordInput.value.trim();
         if (validatePassword(password)) {
@@ -82,11 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
             passwordFeedback.className = "invalid";
         }
 
-        // 비밀번호 확인 칸도 동시에 재검증
         validateConfirmPassword();
     });
 
-    // 🔹 비밀번호 일치 실시간 확인
     confirmInput.addEventListener("input", validateConfirmPassword);
 
     function validateConfirmPassword() {
@@ -106,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🔹 폼 제출 처리
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -161,7 +152,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.location.href = "/verify-info";
             } else {
                 alert(data.message || "회원가입에 실패했습니다.");
-
                 submitBtn.disabled = false;
                 submitBtn.textContent = "회원가입";
             }
@@ -174,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 🔹 정규식 유효성 함수
     function validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);

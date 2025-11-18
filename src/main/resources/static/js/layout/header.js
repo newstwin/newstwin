@@ -1,8 +1,3 @@
-/**
- * 헤더 스크립트
- * - 로그인 상태일 때 사용자 프로필 이미지 불러오기
- * - 로그아웃 처리
- */
 document.addEventListener("DOMContentLoaded", async () => {
     const logoutLink = document.querySelector("a[href='/logout']");
     const profileImgEl = document.getElementById("headerProfileImg");
@@ -12,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         logoutLink.addEventListener("click", async (e) => {
             e.preventDefault();
             try {
-                await fetch("/api/auth/logout", { method: "POST" });
+                await csrfFetch("/api/auth/logout", { method: "POST" });
                 window.location.href = "/";
             } catch (error) {
                 console.error("로그아웃 실패:", error);
@@ -21,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 로그인 상태면 사용자 정보 불러와 헤더 이미지 갱신
+    // 로그인 상태면 헤더 이미지 갱신
     if (profileImgEl) {
         try {
             const res = await fetch("/api/mypage/me");
@@ -31,15 +26,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (result.success && result.data) {
                     const imgUrl = result.data.profileImage;
 
-                    // null, 빈 문자열, undefined 모두 처리
-                    if (imgUrl && imgUrl.trim() !== "") {
-                        profileImgEl.src = imgUrl;
-                    } else {
-                        profileImgEl.src = "/images/basic-profile.png";
-                    }
+                    profileImgEl.src = imgUrl && imgUrl.trim() !== ""
+                        ? imgUrl
+                        : "/images/basic-profile.png";
                 }
             } else {
-                // 로그인 만료 등의 경우
                 profileImgEl.src = "/images/basic-profile.png";
             }
         } catch (err) {
