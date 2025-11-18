@@ -32,7 +32,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           source: "build/libs/*.jar"
-          target: "/home/ec2-user/newstwin/newstwin.jar.tmp"
+          target: "/home/ec2-user/newstwin/"
 
       - name: Restart application on EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -43,8 +43,15 @@ jobs:
           port: 22
           script: |
             cd /home/ec2-user/newstwin
-            if [ -f newstwin.jar ]; then
-              mv newstwin.jar "newstwin-$(date +%Y%m%d%H%M%S).jar.bak"
-            fi
-            mv newstwin.jar.tmp newstwin.jar
+
+            # 예전에 잘못 생성된 디렉토리 제거
+            rm -rf newstwin.jar
+
+            # 최신 JAR 이름을 newstwin.jar로 통일
+            mv *.jar newstwin.jar
+
+            # systemd 서비스 재시작
             sudo systemctl restart newstwin
+
+            # 상태 확인 로깅
+            sudo systemctl status newstwin --no-pager
