@@ -1,7 +1,7 @@
+![Image](https://github.com/user-attachments/assets/f7679304-b932-4ee2-a20d-4bf915d15b96)
+
 # 📰 NewsTwin  
 ### AI 기반 자동 경제 뉴스 분석 & 개인화 뉴스레터 플랫폼
-
-<img src="images/logo.PNG" width="220" alt="NewsTwin Logo">
 
 **경제 뉴스를 자동 수집 → AI 분석 → 개인 맞춤 이메일 뉴스레터 발송까지  
 전 과정을 자동화한 NewsTwin 서비스입니다.**
