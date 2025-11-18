@@ -13,7 +13,7 @@
   <!-- List Page CSS -->
   <link rel="stylesheet" th:href="@{/css/board/boardlist.css}" />
 </head>
-
+<body>
 <!-- 상단 헤더 -->
 <div th:replace="~{layout/header :: header}"></div>
 
@@ -53,7 +53,9 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="post, i : ${posts.content}">
+    <tr th:each="post, i : ${posts.content}"
+        th:onclick="'window.location.href=\'/board/' + ${post.id} + '\';'"
+        style="cursor: pointer;">
       <td class="text-center"
           th:text="${#numbers.formatInteger(posts.totalElements - (posts.number * posts.size) - i.index, 0)}"></td>
       <td class="text-start">
@@ -104,7 +106,8 @@
 <div th:replace="~{layout/footer :: footer}"></div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/common/csrfFetch.js" defer></script>
+
 <script src="/js/layout/header.js" defer></script>
 <script>
   const listView = document.getElementById("listView");
@@ -150,5 +153,6 @@
   // 초기 상태 적용
   applyView(currentView)
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
 </html>

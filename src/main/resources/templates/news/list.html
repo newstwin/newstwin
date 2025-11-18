@@ -118,16 +118,19 @@
 
 <div th:replace="~{layout/footer :: footer}"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/common/csrfFetch.js" defer></script>
 <script src="/js/layout/header.js" defer></script>
 <script src="/js/subscription.js" defer></script>
+
 <script>
   window.onpageshow = function(e){ if(e.persisted) window.location.reload(); }
 </script>
+
 <script th:inline="javascript">
   const MEMBER_RECEIVE_EMAIL = [[${memberReceiveEmail}]];
   const IS_LOGGED_IN = [[${isLoggedIn}]];
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
 </html>

@@ -13,7 +13,6 @@ async function fetchPopularNews() {
         const newsList = await res.json();
 
         container.innerHTML = newsList.map(news => {
-            // 썸네일 처리: 없을 경우 기본 이미지 사용
             const thumbnail = news.thumbnailUrl && news.thumbnailUrl.trim() !== ""
                 ? news.thumbnailUrl
                 : "/images/default-news2.jpg";
@@ -42,8 +41,10 @@ async function fetchCategories() {
         const categories = await res.json();
 
         container.innerHTML = categories.map(cat => `
-      <button class="category-btn" onclick="goToCategory('${cat.categoryName}')">${cat.categoryName}</button>
-    `).join("");
+            <button class="category-btn" onclick="goToCategory('${cat.categoryName}')">
+                ${cat.categoryName}
+            </button>
+        `).join("");
     } catch (e) {
         console.error("카테고리 로드 실패:", e);
     }
@@ -61,15 +62,15 @@ async function fetchCommunityTopics() {
         const topics = await res.json();
 
         container.innerHTML = topics.map(topic => `
-      <li class="list-group-item d-flex justify-content-between align-items-center topic-item" onclick="window.location.href='/post/${topic.id}'" style="cursor:pointer;">
-        <span>${topic.title}</span>
-      </li>
-    `).join("");
+            <li class="list-group-item d-flex justify-content-between align-items-center topic-item"
+                onclick="window.location.href='/board/${topic.id}'" style="cursor:pointer;">
+                <span>${topic.title}</span>
+            </li>
+        `).join("");
     } catch (e) {
         console.error("커뮤니티 로드 실패:", e);
     }
 }
-
 
 // 뉴스레터 구독
 function setupNewsletterForm() {
@@ -91,14 +92,12 @@ function setupNewsletterForm() {
 
             if (!res.ok) throw new Error("서버 오류");
 
-            // 이메일 존재 시 → 로그인 안내 및 이동
             if (data.data === true) {
                 if (confirm("이미 가입된 이메일입니다. 로그인 후 구독 상태를 관리하시겠습니까?")) {
                     sessionStorage.setItem("newsletterInfo", "로그인 후 구독을 관리할 수 있습니다.");
                     window.location.href = "/login";
                 }
             } else {
-                // 신규 사용자 → 회원가입으로 이동 (이메일 자동 입력)
                 if (confirm("입력하신 이메일로 회원가입을 진행하시겠습니까?")) {
                     window.location.href = `/signup?email=${encodeURIComponent(email)}`;
                 }

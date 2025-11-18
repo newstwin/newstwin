@@ -4,9 +4,9 @@ spring:
       on-profile: prod
 
   datasource:
-    url: jdbc:postgresql://newstwindatabase.cdescwsyqo0x.ap-northeast-2.rds.amazonaws.com:5432/newstwindb
-    username: newstwin
-    password: sbtmxmdnls!
+    url: jdbc:postgresql://${RDS_ENDPOINT}:5432/${RDS_DB_NAME}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:

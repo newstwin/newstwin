@@ -8,81 +8,80 @@
     return true;
   };
 
+  document.addEventListener('DOMContentLoaded', () => {
 
-document.addEventListener('DOMContentLoaded', () => {
+    // 별 click
+    document.querySelectorAll('[data-role="star"]').forEach(star => {
+      star.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-  // 별 click
-  document.querySelectorAll('[data-role="star"]').forEach(star => {
-    star.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if(!IS_LOGGED_IN) {
-        window.location.href = '/login';
-        return;
-      }
-
-      if (!MEMBER_RECEIVE_EMAIL) {  // ← 템플릿에서 전역으로 박아주는 값
-        if (confirm("뉴스레터 수신이 꺼져 있어 구독 변경을 할 수 없습니다.\n수신 설정 페이지로 이동할까요?")) {
-          window.location.href = "/mypage/subscription";
+        if(!IS_LOGGED_IN) {
+          window.location.href = '/login';
+          return;
         }
-        return;
-      }
 
-      const categoryId = star.getAttribute('data-category-id');
-
-      try {
-        const res = await fetch(`/api/subscription/toggle-category?categoryId=${categoryId}`, {
-          method: "POST"
-        });
-
-        if(!ensureAuthOrRedirect(res)) return;
-
-        const { active } = await res.json();
-
-        star.classList.remove('bi-star','text-secondary','bi-star-fill','text-warning');
-        if(active){
-          star.classList.add('bi-star-fill','text-warning');
-        } else {
-          star.classList.add('bi-star','text-secondary');
+        if (!MEMBER_RECEIVE_EMAIL) {
+          if (confirm("뉴스레터 수신이 꺼져 있어 구독 변경을 할 수 없습니다.\n수신 설정 페이지로 이동할까요?")) {
+            window.location.href = "/mypage/subscription";
+          }
+          return;
         }
-      } catch(e){
-        alert("구독 변경 중 오류가 발생했습니다.");
-      }
+
+        const categoryId = star.getAttribute('data-category-id');
+
+        try {
+          const res = await csrfFetch(`/api/subscription/toggle-category?categoryId=${categoryId}`, {
+            method: "POST"
+          });
+
+          if(!ensureAuthOrRedirect(res)) return;
+
+          const { active } = await res.json();
+
+          star.classList.remove('bi-star','text-secondary','bi-star-fill','text-warning');
+          if(active){
+            star.classList.add('bi-star-fill','text-warning');
+          } else {
+            star.classList.add('bi-star','text-secondary');
+          }
+        } catch(e){
+          alert("구독 변경 중 오류가 발생했습니다.");
+        }
+      });
     });
+
+    // 전체 구독하기
+    const subscribeAllBtn = document.getElementById("subscribeAllBtn");
+    if(subscribeAllBtn){
+      subscribeAllBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        if(!IS_LOGGED_IN) {
+          window.location.href = '/login';
+          return;
+        }
+
+        if (!MEMBER_RECEIVE_EMAIL) {
+          if (confirm("뉴스레터 수신이 꺼져 있어 구독 변경을 할 수 없습니다.\n수신 설정 페이지로 이동할까요?")) {
+            window.location.href = "/mypage/subscription";
+          }
+          return;
+        }
+
+        try{
+          const res = await csrfFetch('/api/subscription/subscribe-all', { method:"POST" });
+          if(!ensureAuthOrRedirect(res)) return;
+
+          document.querySelectorAll('[data-role="star"]').forEach(star => {
+            star.classList.remove('bi-star','text-secondary');
+            star.classList.add('bi-star-fill','text-warning');
+          });
+
+        } catch(e){
+          alert("전체 구독 처리 중 오류");
+        }
+      });
+    }
   });
-
-  // 전체 구독하기
-  const subscribeAllBtn = document.getElementById("subscribeAllBtn");
-  if(subscribeAllBtn){
-    subscribeAllBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-
-      if(!IS_LOGGED_IN) {
-        window.location.href = '/login';
-        return;
-      }
-
-      if (!MEMBER_RECEIVE_EMAIL) {
-        if (confirm("뉴스레터 수신이 꺼져 있어 구독 변경을 할 수 없습니다.\n수신 설정 페이지로 이동할까요?")) {
-          window.location.href = "/mypage/subscription";
-        }
-        return;
-      }
-
-      try{
-        const res = await fetch('/api/subscription/subscribe-all', { method:"POST" });
-        if(!ensureAuthOrRedirect(res)) return;
-
-        document.querySelectorAll('[data-role="star"]').forEach(star => {
-          star.classList.remove('bi-star','text-secondary');
-          star.classList.add('bi-star-fill','text-warning');
-        });
-
-      } catch(e){
-        alert("전체 구독 처리 중 오류");
-      }
-    });
-  }
-});
 })();
