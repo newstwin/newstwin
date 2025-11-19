@@ -1,16 +1,21 @@
 ![Image](https://github.com/user-attachments/assets/f7679304-b932-4ee2-a20d-4bf915d15b96)
 
 # 📰 NewsTwin  
-### AI 기반 자동 경제 뉴스 분석 & 개인화 뉴스레터 플랫폼
+AI가 경제 뉴스를 자동 분석해 개인 맞춤 뉴스레터로 전달하는 서비스
 
-**🌐 배포 주소(Deploy URL)**  
-👉 https://newstwin.site/
+**🚀 Live Service**  
+🔗 https://newstwin.site/
 
-**경제 뉴스를 자동 수집 → AI 분석 → 개인 맞춤 이메일 뉴스레터 발송까지  
-전 과정을 자동화한 NewsTwin 서비스입니다.**
+NewsTwin은 경제 뉴스를 자동 수집하고, AI가 분석한 결과를 기반으로  
+사용자에게 **개인화된 경제 뉴스 브리핑**을 제공하는 자동화 플랫폼입니다.
 
-Alan AI + ChatGPT 기반 핵심 분석과  
-Spring Boot + PostgreSQL 기반 자동화 파이프라인으로 운영됩니다.
+- Alan AI로 최신 경제 뉴스 선별  
+- ChatGPT로 요약 · 감성 분석 · 핵심 키워드 생성  
+- 카테고리별 중복 제거 기반 직렬 파이프라인 처리  
+- 구독자별 맞춤 뉴스레터 자동 생성 및 발송  
+
+Alan AI + ChatGPT 기반의 AI 분석과  
+Spring Boot + PostgreSQL 기반의 안정적인 자동화 구조로 운영됩니다.
 
 ---
 
