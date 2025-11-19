@@ -188,10 +188,14 @@ function mailToggleStatus(badge) {
 // ===============================
 async function commentToggleStatus(el) {
   const commentId = el.getAttribute('data-comment-id');
+
+  const confirmed = confirm("댓글 상태를 변경하시겠습니까?");
   if (!confirmed) return;
+
   const res = await csrfFetch(`/admin/comments/${commentId}/status`, {
     method: 'POST'
   });
+
   if (res.ok) {
     alert('상태가 변경되었습니다.');
     location.reload();
