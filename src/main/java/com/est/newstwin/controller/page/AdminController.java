@@ -20,6 +20,7 @@ import com.est.newstwin.service.CommentService;
 import com.est.newstwin.service.MailLogService;
 import com.est.newstwin.service.MemberService;
 import com.est.newstwin.service.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.time.Duration;
@@ -69,8 +70,8 @@ public class AdminController {
 
     if (role != null && !role.isEmpty()) {
       members = members.stream()
-          .filter(m -> role.equals(m.getRole()))
-          .toList();
+              .filter(m -> role.equals(m.getRole()))
+              .toList();
     }
 
     int start = page * size;
@@ -94,8 +95,8 @@ public class AdminController {
   @PatchMapping("/admin/users/{memberId}/subscriptions")
   @ResponseBody
   public ResponseEntity<MemberResponseDto> toggleSubscriptions(
-      @PathVariable Long memberId,
-      @RequestBody List<Long> categoryIds) {
+          @PathVariable Long memberId,
+          @RequestBody List<Long> categoryIds) {
 
     MemberResponseDto dto = memberService.toggleSubscriptionStatus(memberId, categoryIds);
     return ResponseEntity.ok(dto);
@@ -115,15 +116,15 @@ public class AdminController {
                             @RequestParam(required = false) String type,
                             Model model) {
     List<PostResponseDto> allPosts = postService.getAllPost()
-        .stream()
-        .filter(post -> "news".equals(post.getType()) || "community".equals(post.getType()))
-        .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
-        .toList();
+            .stream()
+            .filter(post -> "news".equals(post.getType()) || "community".equals(post.getType()))
+            .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            .toList();
 
     if (type != null && !type.isEmpty()) {
       allPosts = allPosts.stream()
-          .filter(post -> type.equals(post.getType()))
-          .toList();
+              .filter(post -> type.equals(post.getType()))
+              .toList();
     }
 
     int start = page * size;
@@ -160,9 +161,9 @@ public class AdminController {
 
   @PostMapping("/admin/posts-contents/{id}/action")
   public String handlePostAction(
-      @PathVariable Long id,
-      @ModelAttribute PostRequestDto dto,
-      @RequestParam String action) {
+          @PathVariable Long id,
+          @ModelAttribute PostRequestDto dto,
+          @RequestParam String action) {
 
     if ("edit".equals(action)) {
       postService.updatePost(id, dto);
@@ -208,14 +209,14 @@ public class AdminController {
                             @RequestParam(required = false) String status,
                             Model model) {
     List<MailLog> logs = mailLogService.getAllMailLogs()
-        .stream()
-        .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
-        .toList();
+            .stream()
+            .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            .toList();
 
     if (status != null && !status.isEmpty()) {
       logs = logs.stream()
-          .filter(m -> status.equals(m.getStatus()))
-          .toList();
+              .filter(m -> status.equals(m.getStatus()))
+              .toList();
     }
 
     int start = page * size;
@@ -251,7 +252,7 @@ public class AdminController {
   @GetMapping("/admin/mails-contents")
   public String viewMailContents(@RequestParam Long mailId, Model model) {
     MailLog log = mailLogRepository.findById(mailId)
-        .orElseThrow(() -> new IllegalArgumentException("메일 로그를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("메일 로그를 찾을 수 없습니다."));
 
     Post post = log.getPost();
     if (post == null) {
@@ -266,8 +267,8 @@ public class AdminController {
   //댓글 페이지
   @GetMapping("admin/comments")
   public String getCommentsList(@RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      Model model) {
+                                @RequestParam(defaultValue = "10") int size,
+                                Model model) {
     Page<Comment> commentsPage = commentService.getAllComments(page, size);
     model.addAttribute("comments", commentsPage.getContent());
     model.addAttribute("page", commentsPage);
@@ -278,7 +279,7 @@ public class AdminController {
   @ResponseBody
   public ResponseEntity<?> deleteComment(@PathVariable Long id) {
     Comment comment = commentRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("댓글 없음"));
+            .orElseThrow(() -> new RuntimeException("댓글 없음"));
     comment.setDeleted(!comment.isDeleted());
     commentRepository.save(comment);
     return ResponseEntity.ok().build();
@@ -286,34 +287,36 @@ public class AdminController {
 
   @PostMapping("/admin/login")
   public ResponseEntity<?> adminLogin( @Valid @RequestBody LoginRequestDto requestDto,
-      HttpServletResponse response) {
+                                       HttpServletResponse response, HttpServletRequest request) {
 
     LoginResponseDto loginResponse = authService.login(requestDto);
     Member member = memberRepository.findByEmail(requestDto.getEmail())
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     if (!"ROLE_ADMIN".equals(member.getRole().name())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN)
-          .body(Map.of(
-              "success", false,
-              "message", "관리자 권한이 없습니다."
-          ));
+              .body(Map.of(
+                      "success", false,
+                      "message", "관리자 권한이 없습니다."
+              ));
     }
 
+    boolean isSecure = request.isSecure();
+
     ResponseCookie cookie = ResponseCookie.from("accessToken", loginResponse.getAccessToken())
-        .httpOnly(true)
-        .secure(false)
-        .path("/")
-        .maxAge(Duration.ofHours(1))
-        .sameSite("Lax")
-        .build();
+            .httpOnly(true)
+            .secure(isSecure)
+            .path("/")
+            .maxAge(Duration.ofHours(1))
+            .sameSite("Lax")
+            .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
     return ResponseEntity.ok(Map.of(
-        "success", true,
-        "message", "관리자 로그인 성공",
-        "memberName", loginResponse.getMemberName()
+            "success", true,
+            "message", "관리자 로그인 성공",
+            "memberName", loginResponse.getMemberName()
     ));
   }
 
@@ -321,10 +324,10 @@ public class AdminController {
   @ResponseBody
   public ResponseEntity<?> logout(HttpServletResponse response) {
     ResponseCookie expiredCookie = ResponseCookie.from("accessToken", "")
-        .path("/")
-        .maxAge(0)
-        .httpOnly(true)
-        .build();
+            .path("/")
+            .maxAge(0)
+            .httpOnly(true)
+            .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
     return ResponseEntity.ok(Map.of("success", true, "message", "로그아웃 완료"));
@@ -334,7 +337,7 @@ public class AdminController {
   public boolean isAdminLoggedIn() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return auth != null && auth.isAuthenticated() &&
-        !"anonymousUser".equals(auth.getPrincipal());
+            !"anonymousUser".equals(auth.getPrincipal());
   }
 
 }
