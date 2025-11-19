@@ -154,20 +154,21 @@ https://www.notion.so/oreumi/5-NT-NewsTwin-299ebaa8982b80b6b9b6e7ce37a89583
 
 ---
 # 📊 ERD (Entity Relationship Diagram)
-
-## 🗂️ Database Table Overview
+<img width="1322" height="750" alt="Image" src="https://github.com/user-attachments/assets/e06bea1f-34f9-4f6e-9aac-d4e4cdd851c7" />
 
 | 구분 | 테이블명 | 역할 |
 |------|-----------|--------|
-| 회원 | MEMBER | 사용자 기본 정보(닉네임, 이메일, 비밀번호, 권한 등) 저장 |
-| 게시글 | POST | Alan + ChatGPT 분석 결과(제목, 요약, 본문, 카테고리 등) 저장 |
-| 구독 | USER_SUBSCRIPTION | 사용자별 구독 카테고리 및 구독 상태 관리 |
-| 카테고리 | CATEGORY | 금융/증권/산업/부동산/글로벌/생활/일반/Top5 등 8개 뉴스 카테고리 정보 |
-| 데이터 로그 | DATA (미정) | Alan AI 원문, 요약, 키워드 등 데이터 저장 예정 |
-| 메일 로그 | MAIL_LOG | 뉴스레터 발송 결과 및 오류 메시지 기록 |
-| 댓글 | COMMENT | 게시글 댓글/대댓글 CRUD 데이터 |
-| 좋아요 | LIKE | 게시글 좋아요 정보(사용자별 좋아요 여부) |
-| 북마크 | BOOKMARK | 게시글 북마크 정보(사용자가 저장한 글 목록) |
+| 사용자 | MEMBER | 사용자 기본 정보(닉네임, 이메일, 비밀번호, 프로필 이미지, 권한, 메일 수신 여부 등) 저장 |
+| 사용자 구독 | USER_SUBSCRIPTION | 사용자별 구독 카테고리 및 활성/비활성 상태 관리 |
+| 게시글 | POST | Alan + ChatGPT 분석 결과(제목, 본문, 요약 JSON, 조회수, 썸네일, 카테고리 등) 저장 |
+| 카테고리 | CATEGORY | 서비스에서 사용하는 8개 뉴스 카테고리 정보 |
+| 댓글 | COMMENT | 게시글 댓글 및 대댓글, 삭제 여부 포함 |
+| 좋아요 | LIKE | 게시글 좋아요 정보(게시글 + 사용자 조합 UNIQUE) |
+| 북마크 | BOOKMARK | 게시글 북마크 정보(게시글 + 사용자 조합 UNIQUE) |
+| 메일 전송 | MAIL_LOG | 뉴스레터 발송 결과, 재시도 횟수, 에러 메시지, 마지막 시도 시간 기록 |
+| 메일 인증 토큰 | EMAILVERIFICATIONTOKEN | 이메일 인증 토큰 및 만료 시간 저장 |
+| 용어 | TERM | 용어, 정의, 생성일, 수정일 관리 |
+| 사진 저장소 | PHOTO | 업로드된 이미지 파일(s3 key, url, 원본 파일명 등) 정보 저장 |
 
 ## 📌 Entity Relationship (NewsTwin)
 <pre>
@@ -188,6 +189,26 @@ Member (1) ──< (1) EmailVerificationToken : 한 사용자는 하나의 이�
 Term : 독립 엔티티로 다른 엔티티와 직접 관계 없음  
 Photo : 독립 엔티티로 다른 엔티티와 직접 관계 없음
 </pre>  
+---
+
+# 🗂️ 디렉토리 구조
+
+<pre>
+newstwin/
+├── src/main/java/com/est/newstwin/
+│   ├── config/               # 설정 클래스 (Security, JWT, Mail, Scheduler, OpenAPI 등)
+│   ├── controller/           # REST API + 웹 컨트롤러 (Admin UI, Member, Post 등)
+│   ├── domain/               # JPA 엔티티 (Member, Post, Category, Comment, MailLog 등)
+│   ├── dto/                  # DTO (Request / Response)
+│   ├── exception/            # 전역 예외 처리 및 커스텀 예외
+│   ├── repository/           # JPA Repository 인터페이스
+│   ├── scheduler/            # 스케줄러 실행 클래스 (AI 파이프라인, 메일 발송 등)
+│   └── service/              # 비즈니스 로직 (Member, Post, Pipeline, Mail 등)
+└── src/main/resources/
+    ├── templates/            # Thymeleaf 템플릿 (HTML 페이지)
+    └── static/               # 정적 리소스 (CSS, JS, Images)
+</pre>
+
 ---
 
 # 🧩 개발 컨벤션
@@ -229,25 +250,5 @@ fix: 메일 발송 실패 로그 저장 오류 수정
 - 상수: UPPER_SNAKE_CASE  
 - 패키지: lowercase  
 - DB 컬럼: snake_case
-
----
-
-# 🗂️ 디렉토리 구조
-
-<pre>
-newstwin/
-├── src/main/java/com/est/newstwin/
-│   ├── config/               # 설정 클래스 (Security, JWT, Mail, Scheduler, OpenAPI 등)
-│   ├── controller/           # REST API + 웹 컨트롤러 (Admin UI, Member, Post 등)
-│   ├── domain/               # JPA 엔티티 (Member, Post, Category, Comment, MailLog 등)
-│   ├── dto/                  # DTO (Request / Response)
-│   ├── exception/            # 전역 예외 처리 및 커스텀 예외
-│   ├── repository/           # JPA Repository 인터페이스
-│   ├── scheduler/            # 스케줄러 실행 클래스 (AI 파이프라인, 메일 발송 등)
-│   └── service/              # 비즈니스 로직 (Member, Post, Pipeline, Mail 등)
-└── src/main/resources/
-    ├── templates/            # Thymeleaf 템플릿 (HTML 페이지)
-    └── static/               # 정적 리소스 (CSS, JS, Images)
-</pre>
 
 ---
