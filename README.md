@@ -9,11 +9,6 @@ AI가 경제 뉴스를 자동 분석해 개인 맞춤 뉴스레터로 전달하�
 NewsTwin은 경제 뉴스를 자동 수집하고, AI가 분석한 결과를 기반으로  
 사용자에게 **개인화된 경제 뉴스 브리핑**을 제공하는 자동화 플랫폼입니다.
 
-- Alan AI로 최신 경제 뉴스 선별  
-- ChatGPT로 요약 · 감성 분석 · 핵심 키워드 생성  
-- 카테고리별 중복 제거 기반 직렬 파이프라인 처리  
-- 구독자별 맞춤 뉴스레터 자동 생성 및 발송  
-
 Alan AI + ChatGPT 기반의 AI 분석과  
 Spring Boot + PostgreSQL 기반의 안정적인 자동화 구조로 운영됩니다.
 
@@ -61,29 +56,57 @@ https://www.notion.so/oreumi/5-NT-NewsTwin-299ebaa8982b80b6b9b6e7ce37a89583
 
 # ⚙️ 기능 요약 (Feature Summary)
 
-### 🔐 회원 / 인증
+### 회원 / 인증
 - JWT 로그인, 회원가입, 소셜 로그인(OAuth2)
 - 마이페이지: 정보 수정 · 관심카테고리 설정 · 구독 수신 여부
 
-### 🤖 뉴스 자동 분석 파이프라인
+### 뉴스 자동 분석 파이프라인
 - Alan AI: 카테고리별 최신 뉴스 5개 수집 (09시 Scheduler)
 - ChatGPT: 긍정/부정 분석 + 요약 생성 + 키워드 추출
 - 중복 뉴스 방지(사용 키워드 누적) & 직렬 구조 처리
 
-### 📧 이메일 뉴스레터
+### 이메일 뉴스레터
 - 구독자별 개인화 뉴스 구성
 - `@Async` 기반 비동기 이메일 발송
 - UUID 기반 구독 해지 링크 (로그인 불필요)
 
-### 📰 게시글 / 피드
+### 게시글 / 피드
 - 카테고리별 뉴스 리스트 & 상세 페이지
 - 좋아요 · 북마크 · 댓글 · 대댓글
 - Excel 캐싱 기반 경제 용어 자동 툴팁
 
-### 🛠 관리자(Admin)
+### 관리자(Admin)
 - 회원/게시글/댓글/메일 로그 관리
 - 게시글 내용 수정 및 운영 도구 제공
 - 관리자 전용 대시보드
+
+---
+
+## 🛠 Tech Stack
+
+### Backend
+
+<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=openjdk&logoColor=white"/> <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/> <img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"/> <img src="https://img.shields.io/badge/JPA-Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white"/> <img src="https://img.shields.io/badge/SpringScheduler-4CAF50?style=for-the-badge&logo=spring&logoColor=white"/> <img src="https://img.shields.io/badge/SpringMail-EA4335?style=for-the-badge&logo=gmail&logoColor=white"/> <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white"/>
+
+### Database
+
+<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/> <img src="https://img.shields.io/badge/H2-323330?style=for-the-badge&logo=h2&logoColor=white"/>
+
+### AI / External API
+
+<img src="https://img.shields.io/badge/OpenAI_ChatGPT-74AA9C?style=for-the-badge&logo=openai&logoColor=white"/> <img src="https://img.shields.io/badge/AlanAI-000000?style=for-the-badge&logoColor=white"/>
+
+### Frontend
+
+<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white"/> <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/> <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white"/>
+
+### DevOps / Deployment
+
+<img src="https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white"/> <img src="https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazonaws&logoColor=white"/> <img src="https://img.shields.io/badge/AWS_RDS-527FFF?style=for-the-badge&logo=amazonaws&logoColor=white"/> <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white"/>
+
+### Collaboration
+
+<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
 
 ---
 
@@ -130,6 +153,42 @@ https://www.notion.so/oreumi/5-NT-NewsTwin-299ebaa8982b80b6b9b6e7ce37a89583
 4. 발송 결과 MailLog 기록
 
 ---
+# 📊 ERD (Entity Relationship Diagram)
+
+## 🗂️ Database Table Overview
+
+| 구분 | 테이블명 | 역할 |
+|------|-----------|--------|
+| 회원 | MEMBER | 사용자 기본 정보(닉네임, 이메일, 비밀번호, 권한 등) 저장 |
+| 게시글 | POST | Alan + ChatGPT 분석 결과(제목, 요약, 본문, 카테고리 등) 저장 |
+| 구독 | USER_SUBSCRIPTION | 사용자별 구독 카테고리 및 구독 상태 관리 |
+| 카테고리 | CATEGORY | 금융/증권/산업/부동산/글로벌/생활/일반/Top5 등 8개 뉴스 카테고리 정보 |
+| 데이터 로그 | DATA (미정) | Alan AI 원문, 요약, 키워드 등 데이터 저장 예정 |
+| 메일 로그 | MAIL_LOG | 뉴스레터 발송 결과 및 오류 메시지 기록 |
+| 댓글 | COMMENT | 게시글 댓글/대댓글 CRUD 데이터 |
+| 좋아요 | LIKE | 게시글 좋아요 정보(사용자별 좋아요 여부) |
+| 북마크 | BOOKMARK | 게시글 북마크 정보(사용자가 저장한 글 목록) |
+
+## 📌 Entity Relationship (NewsTwin)
+<pre>
+Member (1) ──< (N) Post : 한 사용자는 여러 게시글을 작성할 수 있음  
+Category (1) ──< (N) Post : 하나의 카테고리에 여러 게시글이 속할 수 있음  
+Post (1) ──< (N) Comment : 하나의 게시글에는 여러 댓글이 달릴 수 있음  
+Member (1) ──< (N) Comment : 한 사용자는 여러 댓글을 작성할 수 있음  
+Comment (1) ──< (N) Comment(parent-child) : 댓글은 대댓글 구조를 가질 수 있음  
+Post (1) ──< (N) Like : 하나의 게시글을 여러 사용자가 좋아요할 수 있음  
+Member (1) ──< (N) Like : 한 사용자는 여러 게시글에 좋아요할 수 있음(게시글당 1회)  
+Post (1) ──< (N) Bookmark : 하나의 게시글을 여러 사용자가 북마크할 수 있음  
+Member (1) ──< (N) Bookmark : 한 사용자는 여러 게시글을 북마크할 수 있음(게시글당 1회)  
+Member (1) ──< (N) UserSubscription : 한 사용자는 여러 카테고리를 구독할 수 있음  
+Category (1) ──< (N) UserSubscription : 하나의 카테고리는 여러 사용자가 구독할 수 있음  
+Post (1) ──< (1) MailLog : 하나의 게시글은 단일 메일 발송 로그를 가짐(Unique: post_id)  
+Member (1) ──< (N) MailLog : 한 사용자는 여러 메일 발송 이력을 가질 수 있음  
+Member (1) ──< (1) EmailVerificationToken : 한 사용자는 하나의 이메일 인증 토큰을 가짐  
+Term : 독립 엔티티로 다른 엔티티와 직접 관계 없음  
+Photo : 독립 엔티티로 다른 엔티티와 직접 관계 없음
+</pre>  
+---
 
 # 🧩 개발 컨벤션
 
@@ -169,185 +228,26 @@ fix: 메일 발송 실패 로그 저장 오류 수정
 - 메서드/변수: lowerCamelCase  
 - 상수: UPPER_SNAKE_CASE  
 - 패키지: lowercase  
-- DB 컬럼: snake_case  
+- DB 컬럼: snake_case
+
 ---
 
 # 🗂️ 디렉토리 구조
 
 <pre>
-newstwin
-  │  NewstwinApplication.class
-  │
-  ├─config
-  │  │  AlanAIConfig.class
-  │  │  AsyncConfig.class
-  │  │  OpenAIConfig.class
-  │  │  SchedulerConfig.class
-  │  │  SecurityConfig.class
-  │  │  SwaggerConfig.class
-  │  │  WebConfig.class
-  │  │
-  │  ├─jwt
-  │  │      JwtAuthenticationFilter.class
-  │  │      JwtTokenProvider.class
-  │  │
-  │  └─oauth2
-  │          CustomOAuth2User.class
-  │          CustomOAuth2UserService.class
-  │          OAuth2SuccessHandler.class
-  │
-  ├─controller
-  │  ├─api
-  │  │      AiSchedulerController.class
-  │  │      AlanApiController.class
-  │  │      AuthController.class
-  │  │      BookmarkApiController.class
-  │  │      ChatGPTController.class
-  │  │      CommentApiController.class
-  │  │      HomeApiController.class
-  │  │      LikeApiController.class
-  │  │      MemberController.class
-  │  │      MypageController.class
-  │  │      NewsPipelineController.class
-  │  │      SubscriptionApiController.class
-  │  │
-  │  └─page
-  │          AdminController.class
-  │          BoardController.class
-  │          MypagePageController.class
-  │          PageController.class
-  │          PostController.class
-  │
-  ├─domain
-  │      Bookmark.class
-  │      Category.class
-  │      Comment.class
-  │      EmailVerificationToken.class
-  │      Like.class
-  │      MailLog.class
-  │      Member.class
-  │      Photo.class
-  │      Post.class
-  │      Term.class
-  │      UserSubscription.class
-  │
-  ├─dto
-  │  ├─api
-  │  │      ApiResponse.class
-  │  │      CategoryDto.class
-  │  │      CategoryViewDto.class
-  │  │      PostRequestDto.class
-  │  │      PostResponseDto.class
-  │  │
-  │  ├─auth
-  │  │      LoginRequestDto.class
-  │  │      LoginResponseDto.class
-  │  │
-  │  ├─member
-  │  │      EmailVerificationResponseDto.class
-  │  │      MemberRequestDto.class
-  │  │      MemberResponseDto.class
-  │  │      MemberUpdateRequestDto.class
-  │  │
-  │  ├─mypage
-  │  │      BookmarkPostResponseDto.class
-  │  │      SubscriptionRequestDto.class
-  │  │      SubscriptionResponseDto.class
-  │  │
-  │  └─post
-  │          BookmarkStateResponseDto.class
-  │          BookmarkToggleRequestDto.class
-  │          BookmarkToggleResponseDto.class
-  │          CommentCreateRequest.class
-  │          CommentPageResponse.class
-  │          LikeStateResponseDto.class
-  │          LikeToggleRequestDto.class
-  │          LikeToggleResponseDto.class
-  │          NestedCommentResponseDto.class
-  │          PostDetailDto.class
-  │          PostSummaryDto.class
-  │
-  ├─exception
-  │      CustomException.class
-  │      ErrorCode.class
-  │      ErrorResponse.class
-  │      GlobalExceptionHandler.class
-  │
-  ├─repository
-  │      BookmarkRepository.class
-  │      CategoryRepository.class
-  │      CommentRepository.class
-  │      EmailVerificationTokenRepository.class
-  │      LikeRepository.class
-  │      MailLogRepository.class
-  │      MemberRepository.class
-  │      PhotoRepository.class
-  │      PostRepository.class
-  │      TermRepository.class
-  │      UserSubscriptionRepository.class
-  │
-  ├─scheduler
-  │      AiScheduler.class
-  │      NewsletterScheduler.class
-  │
-  └─service
-          AdminService.class
-          AIPostService.class
-          AlanApiService.class
-          AuthService.class
-          BookmarkService.class
-          CategoryService.class
-          ChatGPTService.class
-          CommentService.class
-          EmailAsyncService.class
-          EmailService.class
-          LikeService.class
-          MailLogService.class
-          MemberService.class
-          MypageService.class
-          NewsPipelineService.class
-          PhotoService.class
-          PostService.class
-          SubscriptionService.class
-          TermAnnotater.class
-          TermCacheService.class
+newstwin/
+├── src/main/java/com/est/newstwin/
+│   ├── config/               # 설정 클래스 (Security, JWT, Mail, Scheduler, OpenAPI 등)
+│   ├── controller/           # REST API + 웹 컨트롤러 (Admin UI, Member, Post 등)
+│   ├── domain/               # JPA 엔티티 (Member, Post, Category, Comment, MailLog 등)
+│   ├── dto/                  # DTO (Request / Response)
+│   ├── exception/            # 전역 예외 처리 및 커스텀 예외
+│   ├── repository/           # JPA Repository 인터페이스
+│   ├── scheduler/            # 스케줄러 실행 클래스 (AI 파이프라인, 메일 발송 등)
+│   └── service/              # 비즈니스 로직 (Member, Post, Pipeline, Mail 등)
+└── src/main/resources/
+    ├── templates/            # Thymeleaf 템플릿 (HTML 페이지)
+    └── static/               # 정적 리소스 (CSS, JS, Images)
 </pre>
 
 ---
-
-# 🛠 Tech Stack
-
-<div align="center">
-
-### **Backend**
-<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=openjdk&logoColor=white"/>
-<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
-<img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"/>
-<img src="https://img.shields.io/badge/JPA-Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white"/>
-<img src="https://img.shields.io/badge/SpringScheduler-4CAF50?style=for-the-badge&logo=spring&logoColor=white"/>
-<img src="https://img.shields.io/badge/SpringMail-EA4335?style=for-the-badge&logo=gmail&logoColor=white"/>
-
-### **Database**
-<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
-<img src="https://img.shields.io/badge/H2-323330?style=for-the-badge&logo=h2&logoColor=white"/>
-
-### **AI / External API**
-<img src="https://img.shields.io/badge/OpenAI_ChatGPT-74AA9C?style=for-the-badge&logo=openai&logoColor=white"/>
-<img src="https://img.shields.io/badge/AlanAI-000000?style=for-the-badge&logoColor=white"/>
-
-### **Frontend**
-<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white"/>
-<img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white"/>
-
-### **DevOps / Deployment**
-<img src="https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white"/>
-<img src="https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazonaws&logoColor=white"/>
-<img src="https://img.shields.io/badge/AWS_RDS-527FFF?style=for-the-badge&logo=amazonaws&logoColor=white"/>
-<img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white"/>
-
-### **Collaboration**
-<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/>
-<img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
-
-</div>
