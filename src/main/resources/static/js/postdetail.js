@@ -13,6 +13,7 @@
   const sideBookmark = document.getElementById("sideBookmark");
   const sideComment = document.getElementById("sideComment");
   const sideCommentCount = document.getElementById("sideCommentCount");
+  const deleteBtn = document.getElementById("deleteBtn");
 
   const ensureAuthOrRedirect = (res) => {
     if (res.status === 401 || res.status === 403) {
@@ -198,10 +199,7 @@
 
 
   /* board 삭제 버튼 */
-  document.addEventListener("DOMContentLoaded", () => {
-    const deleteBtn = document.getElementById("deleteBtn");
-    if (!deleteBtn) return;
-
+  if (deleteBtn) {
     deleteBtn.addEventListener("click", async () => {
       const postId = deleteBtn.dataset.postId;
       const confirmed = confirm("정말 이 글을 삭제하시겠습니까?");
@@ -209,7 +207,7 @@
 
       try {
         const res = await fetch(`/board/delete/${postId}`, {
-          method: 'DELETE'
+          method: "DELETE",
         });
 
         if (res.ok) {
@@ -226,5 +224,5 @@
         alert("삭제 요청 실패");
       }
     });
-  });
+  }
 })();
