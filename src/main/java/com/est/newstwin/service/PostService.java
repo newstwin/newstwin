@@ -289,13 +289,23 @@ public class PostService {
     if (text == null) return "";
 
     return text
-            .replaceAll("\\*\\*(.*?)\\*\\*", "$1")  // bold
-            .replaceAll("\\*(.*?)\\*", "$1")        // italic
-            .replaceAll("`(.*?)`", "$1")            // inline code
-            .replaceAll("###?\\s+", "")             // heading
-            .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "$1") // link
-            .replaceAll("\\s*!\\[[^\\]]*\\]\\([^\\)]*\\)", "")  // 이미지 제거 (공백 포함!)
-            .replaceAll("안녕하세요\\.[^\\n]*?NewsTwin 경제 브리핑입니다\\.", "") // 인사말 제거
+            .replaceAll("\\*\\*(.*?)\\*\\*", "$1")         // bold
+            .replaceAll("\\*(.*?)\\*", "$1")              // italic
+            .replaceAll("`(.*?)`", "$1")                  // inline code
+            .replaceAll("###?\\s+", "")                   // heading
+            .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "$1")   // link
+
+            // 모든 이미지 마크다운 제거 (앞/뒤 공백 포함, 어떤 형태든)
+            .replaceAll("!\\[[^\\]]*\\]\\([^\\)]*\\)", "")
+            .replaceAll("\\s*!\\[[^\\]]*\\]\\([^\\)]*\\)", "")
+
+            // 혹시 남을 수도 있는 '!대표 이미지' 텍스트도 제거
+            .replaceAll("!대표 이미지", "")
+            .replaceAll("대표 이미지", "")  // 혹시 느낌표 없이 들어올 경우 대비
+
+            // AI 인사말 제거
+            .replaceAll("안녕하세요\\.[^\\n]*?NewsTwin 경제 브리핑입니다\\.", "")
+
             .trim();
   }
 
