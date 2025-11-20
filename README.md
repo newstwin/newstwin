@@ -3,7 +3,7 @@
 # 📰 NewsTwin  
 AI가 경제 뉴스를 자동 분석해 개인 맞춤 뉴스레터로 전달하는 서비스
 
-**🚀 Live Service**  
+### 🚀 Live Service  
 🔗 https://newstwin.kro.kr/
 
 ### 🎬 Demo & Presentation
