@@ -289,13 +289,13 @@ public class PostService {
     if (text == null) return "";
 
     return text
-            .replaceAll("\\*\\*(.*?)\\*\\*", "$1") // bold
-            .replaceAll("\\*(.*?)\\*", "$1")       // italic
-            .replaceAll("`(.*?)`", "$1")           // inline code
-            .replaceAll("###?\\s+", "")            // heading
+            .replaceAll("\\*\\*(.*?)\\*\\*", "$1")  // bold
+            .replaceAll("\\*(.*?)\\*", "$1")        // italic
+            .replaceAll("`(.*?)`", "$1")            // inline code
+            .replaceAll("###?\\s+", "")             // heading
             .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "$1") // link
-            .replaceAll("!\\[[^\\]]*\\]\\([^\\)]*\\)", "")
-            .replaceAll("안녕하세요\\.[^\\n]*?NewsTwin 경제 브리핑입니다\\.", "")
+            .replaceAll("\\s*!\\[[^\\]]*\\]\\([^\\)]*\\)", "")  // 이미지 제거 (공백 포함!)
+            .replaceAll("안녕하세요\\.[^\\n]*?NewsTwin 경제 브리핑입니다\\.", "") // 인사말 제거
             .trim();
   }
 
