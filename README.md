@@ -211,5 +211,3 @@ fix: 메일 발송 실패 로그 저장 오류 수정
 - 상수: UPPER_SNAKE_CASE  
 - 패키지: lowercase  
 - DB 컬럼: snake_case
-
----
