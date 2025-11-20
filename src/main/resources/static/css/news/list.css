@@ -1,27 +1,27 @@
-/* -------------------------------
-   NewsTwin - 게시글 리스트 스타일 개선
-   톤: 블랙 / 그레이 / 하늘색
---------------------------------*/
+/* -----------------------------------------
+   NewsTwin - 뉴스 리스트 전체 스타일 (정사각형 썸네일 버전)
+-------------------------------------------- */
 
+/* 배경 / 기본 설정 */
 body {
     background-color: #f9f9f9;
     color: #222;
     font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 main {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 2rem 3rem;     /* 여백 확장 */
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem 3rem;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    max-width: 1200px;      /* 너무 넓어지는 것 방지 */
-    margin: 0 auto;         /* 중앙 정렬 */
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* 헤더 */
+/* -----------------------------------------
+   헤더 영역
+-------------------------------------------- */
+
 .list-header {
     border-bottom: 1px solid #e5e5e5;
     padding-bottom: 0.75rem;
@@ -30,173 +30,184 @@ main {
 .category-title {
     font-weight: 700;
     color: #111;
+    font-size: 1.25rem;
 }
 
-/* 검색창 (input+button 일체형) */
+/* 검색창 */
 .search-form {
     position: relative;
-    width: 220px;
+    width: 230px;
 }
 
 .search-input {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 8px;
-    padding: 6px 35px 6px 10px;
+    padding: 7px 35px 7px 10px;
     font-size: 0.9rem;
     transition: all 0.2s;
 }
 
 .search-input:focus {
-    outline: none;
     border-color: #6dc6ff;
     box-shadow: 0 0 5px rgba(109,198,255,0.3);
+    outline: none;
 }
 
 .search-btn {
     position: absolute;
-    right: 5px;
+    right: 6px;
     top: 50%;
     transform: translateY(-50%);
-    background-color: #6dc6ff;
-    border: none;
+    background: #6dc6ff;
     color: white;
-    width: 26px;
-    height: 26px;
+    border: none;
+    width: 28px;
+    height: 28px;
     border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
+    cursor: pointer;
 }
 
-.search-btn:hover {
-    background-color: #5bb0e8;
-}
-
-/* 정렬 버튼 */
+/* 정렬 드롭다운 버튼 */
 .btn-sort {
     border: 1px solid #ccc;
-    color: #444;
-    background-color: #fff;
     border-radius: 8px;
+    padding: 6px 12px;
     font-size: 0.85rem;
-    padding: 5px 10px;
-    transition: all 0.2s;
+    background: #fff;
+    color: #333;
+    transition: all 0.2s ease;
 }
 
 .btn-sort:hover {
-    color: #111;
     border-color: #6dc6ff;
-    background-color: rgba(109,198,255,0.1);
+    background: rgba(109,198,255,0.14);
+    color: #111;
 }
-/*글쓰기 버튼*/
-.btn-primary {
-  background-color: #6dc6ff;
-  border-color: #6dc6ff;
-}
-.btn-primary:hover {
-  background-color: #5bb0e8;
-  border-color: #5bb0e8;
-}
+
+/* -----------------------------------------
+   뉴스 카드 디자인 (개선된 버전)
+-------------------------------------------- */
+
 
 /* 카드 */
-.list-card {
-    border: 1px solid #ebebeb;
-    border-radius: 12px;
-    transition: all 0.25s ease;
+.news-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    transition: 0.25s ease;
 }
 
-.list-card:hover {
-    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-    border-color: #6dc6ff;
+.news-card:hover {
     transform: translateY(-2px);
+    border-color: #6dc6ff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
-.card-thumb img {
+/* 썸네일 */
+.thumb-wrap {
+    width: 160px;          /* 크기 줄여서 균형 맞춤 */
+    height: 160px;         /* 정사각형 */
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #ddd;
+}
+
+.thumb-wrap img {
     width: 100%;
-    height: 120px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
+}
+
+.col {
+    min-width: 0;          /* ★ flex + bootstrap 함께 쓸 때 필수 – 글이 오른쪽 끝까지 감 */
 }
 
 /* 제목 */
-.post-title {
-    color: #111;
-    font-weight: 600;
-    font-size: 1rem;
+.news-title {
+    font-weight: 700;
+    font-size: 1.15rem;
     line-height: 1.4;
 }
 
-.post-title:hover {
+.news-title:hover {
     color: #6dc6ff;
 }
 
 /* 메타정보 */
-.post-meta {
-    color: #777;
-    font-size: 0.85rem;
+.news-meta {
+    font-size: 0.83rem;
+    color: #7a7a7a;
+    margin-bottom: 8px;
 }
 
-/* 본문 요약 (2~3줄까지 … 처리) */
-.post-preview {
-    color: #555;
-    line-height: 1.6;
+/* 메타 */
+.news-meta {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* 요약 (3줄 제한) */
+.news-summary {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.55;
+
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+
     overflow: hidden;
-    min-height: 3.9em;
+    text-overflow: ellipsis;
 }
 
-/* 페이지네이션 */
-.pagination {
-    margin-top: 2rem;
+/* 더보기 */
+.news-bottom {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6dc6ff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.pagination .page-link {
-    color: #555;
-    border-radius: 6px;
-    margin: 0 3px;
-    border: 1px solid #ddd;
-    transition: all 0.2s;
+.news-bottom i {
+    font-size: 0.9rem;
 }
 
-.pagination .page-item.active .page-link {
-    background-color: #6dc6ff;
-    border-color: #6dc6ff;
-    color: #fff;
-}
-
-.pagination .page-link:hover {
-    background-color: rgba(109,198,255,0.15);
-    border-color: #6dc6ff;
-    color: #111;
-}
-
-.pagination .page-item.disabled .page-link {
-    color: #aaa;
-    background-color: #f1f1f1;
-    border-color: #ddd;
-}
-
-.table-fixed {
-  table-layout: fixed;
-  width: 100%;
-}
-
-.table-fixed td, .table-fixed th {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 링크 */
+/* 전체 링크 클릭 */
 .news-link {
     display: block;
+    text-decoration: none;
 }
 
-/* footer 붙이기 */
-footer {
-    margin-top: auto !important;
+/* -----------------------------------------
+   반응형
+-------------------------------------------- */
+
+@media (max-width: 768px) {
+    main {
+        padding: 1.4rem 1.4rem;
+    }
+    .news-title {
+        font-size: 0.98rem;
+    }
+    .news-summary {
+        font-size: 0.83rem;
+    }
+}
+/* 반응형 - 태블릿 */
+@media (max-width: 992px) {
+    .thumb-wrap {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+/* 반응형 - 모바일 */
+@media (max-width: 768px) {
+    .thumb-wrap {
+        width: 110px;
+        height: 110px;
+    }
 }
