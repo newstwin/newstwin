@@ -13,7 +13,6 @@
   const sideBookmark = document.getElementById("sideBookmark");
   const sideComment = document.getElementById("sideComment");
   const sideCommentCount = document.getElementById("sideCommentCount");
-  const deleteBtn = document.getElementById("deleteBtn");
 
   const ensureAuthOrRedirect = (res) => {
     if (res.status === 401 || res.status === 403) {
@@ -232,3 +231,4 @@ document.addEventListener("DOMContentLoaded", () => {
     new bootstrap.Tooltip(el);
   });
 });
+})();

@@ -16,8 +16,10 @@ import com.est.newstwin.repository.MemberRepository;
 import com.est.newstwin.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -200,7 +202,10 @@ public class PostService {
 
     post.setIsActive(!post.getIsActive());
     postRepository.save(post);
-    List<Category> categories = List.of(post.getCategory());
+    List<Category> categories = Optional.ofNullable(post.getCategory())
+        .map(List::of)
+        .orElse(Collections.emptyList());
+
     return new PostResponseDto(post, categories);
   }
 
