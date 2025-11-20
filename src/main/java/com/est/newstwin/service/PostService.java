@@ -76,12 +76,10 @@ public class PostService {
             stripMarkdown(post.getTitle()),
             post.getThumbnailUrl(),
             post.getCreatedAt(),
-            post.getCount(),
-            post.getContent()
+            post.getCount(), abbreviate(stripMarkdown(post.getContent()), 500)
         )
     );
   }
-
 
   @Transactional
   public Page<PostResponseDto> getBoardPosts(String type, String search, Pageable pageable) {
@@ -192,9 +190,6 @@ public class PostService {
   }
 
 
-
-
-
   @Transactional
   public PostResponseDto togglePostStatus(Long postId) {
     Post post = postRepository.findById(postId)
@@ -268,7 +263,7 @@ public class PostService {
                     post.getThumbnailUrl(),
                     post.getCreatedAt(),
                     post.getCount(),
-                    abbreviate(post.getContent(), 360)
+                    abbreviate(stripMarkdown(post.getContent()), 360)
             ))
             .collect(Collectors.toList());
   }
@@ -281,14 +276,13 @@ public class PostService {
             .map(post -> new CommunityPostSummaryDto(
                     post.getId(),
                     post.getTitle(),
-                    post.getMember().getMemberName(),   // 🔥 작성자
+                    post.getMember().getMemberName(),
                     post.getCreatedAt(),
                     post.getCount(),
-                    abbreviate(post.getContent(), 120)
+                    abbreviate(stripMarkdown(post.getContent()), 360)
             ))
             .collect(Collectors.toList());
   }
-
 
 
   private String stripMarkdown(String text) {
@@ -300,8 +294,11 @@ public class PostService {
             .replaceAll("`(.*?)`", "$1")           // inline code
             .replaceAll("###?\\s+", "")            // heading
             .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "$1") // link
+            .replaceAll("!\\[[^\\]]*\\]\\([^\\)]*\\)", "")
             .trim();
   }
+
+
 
 
 }
