@@ -248,7 +248,7 @@ public class PostService {
                     post.getThumbnailUrl(),
                     post.getCreatedAt(),
                     post.getCount(),
-                    abbreviate(post.getContent(), 360)
+                    abbreviate(stripMarkdown(post.getContent()), 360)
             ))
             .collect(Collectors.toList());
   }
@@ -295,6 +295,7 @@ public class PostService {
             .replaceAll("###?\\s+", "")            // heading
             .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "$1") // link
             .replaceAll("!\\[[^\\]]*\\]\\([^\\)]*\\)", "")
+            .replaceAll("안녕하세요\\.[^\\n]*?NewsTwin 경제 브리핑입니다\\.", "")
             .trim();
   }
 
