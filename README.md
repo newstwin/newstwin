@@ -111,46 +111,7 @@ https://www.notion.so/oreumi/5-NT-NewsTwin-299ebaa8982b80b6b9b6e7ce37a89583
 ---
 
 # 🏗 시스템 아키텍처 (Architecture)
-<pre>
-[사용자]
-  │
-  ▼
-[Spring Boot Backend]
-  ├─ Auth / Member / Post / Comment / Subscription
-  ├─ AI Pipeline (Alan → ChatGPT → Post)
-  ├─ Scheduler (뉴스 분석 / 뉴스레터 발송)
-  └─ Email Service (Async)
-  │
-  ▼
-[PostgreSQL RDS] (RDS)
-
-[Alan AI]       ← 최신 경제 뉴스 5개  
-[ChatGPT]       ← 요약 / 긍·부정 분석 / 키워드 생성
-
-[Email Service]
-   ├─ HTML 마크업 템플릿
-   ├─ 비동기 발송 (@Async)
-   └─ MailLog DB 기록
-</pre>
-
----
-
-# 🔁 자동 뉴스 분석 파이프라인
-
-1. **Alan AI** → 카테고리별 주요 뉴스 5개 수집  
-2. **ChatGPT** → 요약 / 긍정·부정 분석 / 핵심 키워드 생성  
-3. **키워드 누적 & 중복 뉴스 제거**  
-4. **Markdown 형태로 DB(Post) 저장**  
-5. **8개 카테고리 직렬 처리(Top5 → 금융 → 증권 → 산업 …)**
-
----
-
-# 📬 이메일 뉴스레터 파이프라인
-
-1. 구독 카테고리 기반 뉴스 조회  
-2. Markdown → HTML 변환 (commonmark-java)  
-3. 비동기 이메일 발송 (@Async + ThreadPool)  
-4. 발송 결과 MailLog 기록
+<img width="3784" height="1739" alt="Image" src="https://github.com/user-attachments/assets/0c6261b1-c4f3-41da-837a-5314e5f89cbe" />
 
 ---
 # 📊 ERD (Entity Relationship Diagram)
