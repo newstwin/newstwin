@@ -1,6 +1,7 @@
 package com.est.newstwin.controller.api;
 
 import com.est.newstwin.domain.Category;
+import com.est.newstwin.dto.post.CommunityPostSummaryDto;
 import com.est.newstwin.dto.post.PostSummaryDto;
 import com.est.newstwin.repository.LikeRepository;
 import com.est.newstwin.service.CategoryService;
@@ -52,10 +53,10 @@ public class HomeApiController {
      * 커뮤니티 인기 토픽
      */
     @GetMapping("/popular-community")
-    public List<PostSummaryDto> getPopularCommunity() {
+    public List<CommunityPostSummaryDto> getPopularCommunity() {
 
         PageRequest pageable = PageRequest.of(0, 3);
 
-        return postService.getTopPostsByType("community", pageable);
+        return postService.getTopCommunityPosts(pageable);
     }
 }

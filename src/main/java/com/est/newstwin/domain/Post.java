@@ -46,7 +46,7 @@ public class Post {
   private Member member;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "category_id")
+  @JoinColumn(name = "category_id", nullable = true)
   private Category category;
 
   @Column(length = 20)

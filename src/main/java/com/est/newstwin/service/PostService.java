@@ -3,6 +3,7 @@ package com.est.newstwin.service;
 import com.est.newstwin.domain.Category;
 import com.est.newstwin.domain.Member;
 import com.est.newstwin.domain.Post;
+import com.est.newstwin.dto.post.CommunityPostSummaryDto;
 import com.est.newstwin.dto.post.PostDetailDto;
 import com.est.newstwin.dto.post.PostSummaryDto;
 import com.est.newstwin.dto.api.PostRequestDto;
@@ -70,7 +71,7 @@ public class PostService {
     return posts.map(post ->
         new PostSummaryDto(
             post.getId(),
-            post.getTitle(),
+            stripMarkdown(post.getTitle()),
             post.getThumbnailUrl(),
             post.getCreatedAt(),
             post.getCount(),
@@ -243,11 +244,11 @@ public class PostService {
     return posts.stream()
             .map(post -> new PostSummaryDto(
                     post.getId(),
-                    post.getTitle(),
+                    stripMarkdown(post.getTitle()),
                     post.getThumbnailUrl(),
                     post.getCreatedAt(),
                     post.getCount(),
-                    abbreviate(post.getContent(), 120)
+                    abbreviate(post.getContent(), 360)
             ))
             .collect(Collectors.toList());
   }
@@ -258,12 +259,44 @@ public class PostService {
     return posts.stream()
             .map(post -> new PostSummaryDto(
                     post.getId(),
-                    post.getTitle(),
+                    stripMarkdown(post.getTitle()),
                     post.getThumbnailUrl(),
+                    post.getCreatedAt(),
+                    post.getCount(),
+                    abbreviate(post.getContent(), 360)
+            ))
+            .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<CommunityPostSummaryDto> getTopCommunityPosts(Pageable pageable) {
+    List<Post> posts = postRepository.findTopByType("community", pageable);
+
+    return posts.stream()
+            .map(post -> new CommunityPostSummaryDto(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getMember().getMemberName(),   // 🔥 작성자
                     post.getCreatedAt(),
                     post.getCount(),
                     abbreviate(post.getContent(), 120)
             ))
             .collect(Collectors.toList());
   }
+
+
+
+  private String stripMarkdown(String text) {
+    if (text == null) return "";
+
+    return text
+            .replaceAll("\\*\\*(.*?)\\*\\*", "$1") // bold
+            .replaceAll("\\*(.*?)\\*", "$1")       // italic
+            .replaceAll("`(.*?)`", "$1")           // inline code
+            .replaceAll("###?\\s+", "")            // heading
+            .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "$1") // link
+            .trim();
+  }
+
+
 }

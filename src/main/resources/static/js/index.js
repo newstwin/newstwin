@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // 오늘의 인기 뉴스
 async function fetchPopularNews() {
     const container = document.getElementById("popularNewsContainer");
+
     try {
         const res = await fetch("/api/home/popular-news");
         const newsList = await res.json();
@@ -17,21 +18,37 @@ async function fetchPopularNews() {
                 ? news.thumbnailUrl
                 : "/images/default-news2.jpg";
 
+            const summary = news.content
+                ? news.content.replace(/[#>*_`]/g, "").slice(0, 120) + "..."
+                : "요약 준비 중입니다.";
+
             return `
                 <div class="col-md-4">
-                    <div class="card news-card" onclick="window.location.href='/post/${news.id}'" style="cursor:pointer;">
-                        <img src="${thumbnail}" class="card-img-top" alt="${news.title}">
-                        <div class="card-body text-start">
-                            <h6 class="card-title fw-semibold">${news.title}</h6>
+                    <div class="card home-news-card" onclick="window.location.href='/post/${news.id}'">
+                        <div class="thumb-wrap">
+                            <img src="${thumbnail}" alt="${news.title}">
+                        </div>
+
+                        <div class="card-body">
+
+                            <h6 class="news-title">${news.title}</h6>
+
+                            <div class="news-meta">
+                                ${news.createdAt} · 조회 ${news.count}
+                            </div>
+
+                            <p class="news-summary">${summary}</p>
                         </div>
                     </div>
                 </div>
             `;
         }).join("");
+
     } catch (e) {
         console.error("인기 뉴스 로드 실패:", e);
     }
 }
+
 
 // AI 카테고리
 async function fetchCategories() {
@@ -57,20 +74,36 @@ function goToCategory(cat) {
 // 커뮤니티 인기 토픽
 async function fetchCommunityTopics() {
     const container = document.getElementById("communityList");
+
     try {
         const res = await fetch("/api/home/popular-community");
         const topics = await res.json();
 
-        container.innerHTML = topics.map(topic => `
-            <li class="list-group-item d-flex justify-content-between align-items-center topic-item"
-                onclick="window.location.href='/board/${topic.id}'" style="cursor:pointer;">
-                <span>${topic.title}</span>
-            </li>
-        `).join("");
-    } catch (e) {
-        console.error("커뮤니티 로드 실패:", e);
+        container.innerHTML = topics.map(topic => {
+
+            const preview = topic.content
+                ? topic.content.replace(/[#>*_`]/g, "").slice(0, 50) + "..."
+                : "내용 없음";
+
+            return `
+                    <div class="community-card" onclick="window.location.href='/board/${topic.id}'">
+            
+                        <div class="community-title">${topic.title}</div>
+            
+                        <div class="community-summary">${preview}</div>
+            
+                        <div class="community-meta">
+                            ${topic.author} · ${topic.createdAt} · 댓글 ${topic.count}
+                        </div>
+                    </div>
+                `;
+        }).join("");
+
+    } catch (err) {
+        console.error("커뮤니티 로드 실패:", err);
     }
 }
+
 
 // 뉴스레터 구독
 function setupNewsletterForm() {

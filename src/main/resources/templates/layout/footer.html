@@ -1,3 +1,37 @@
-<footer th:fragment="footer" class="bg-light text-center py-3 border-top">
-    <p class="mb-0 text-muted">© 2025 <strong>NewsTwin</strong> — All rights reserved.</p>
+<footer th:fragment="footer" class="footer text-white py-4">
+    <div class="container-fluid d-flex flex-column flex-md-row justify-content-between align-items-center">
+
+        <!-- 왼쪽: 프로젝트 소개 -->
+        <div class="footer-info mb-4 mb-md-0">
+            <p class="project-name mb-1">
+                📰 <strong>NewsTwin</strong>
+            </p>
+            <p class="mb-0 small">AI가 요약하는 경제·금융 뉴스 플랫폼</p>
+            <p class="mb-0 small">오르미 백엔드 개발자 부트캠프 팀 프로젝트</p>
+            <p class="mb-0 small">2025 Spring Boot Team Project</p>
+        </div>
+
+
+        <!-- 오른쪽: 링크 아이콘 -->
+        <div class="footer-links d-flex gap-4">
+            <!-- GitHub -->
+            <a href="https://github.com/newstwin/newstwin" target="_blank" class="footer-icon" title="GitHub Repository">
+                <i class="fa-brands fa-github"></i>
+            </a>
+            <!-- YouTube 시연 영상 -->
+            <a href="https://youtube.com/your-demo-video" target="_blank" class="footer-icon" title="시연 영상">
+                <i class="fa-brands fa-youtube"></i>
+            </a>
+            <!-- 발표자료 (Google Drive PDF) -->
+            <a href="https://drive.google.com/file/d/1FsAC9GE10MKDDms_dwJVa0cb-r4sPUvo/view?usp=sharing" target="_blank" class="footer-icon" title="발표자료">
+                <i class="fa-solid fa-file-pdf"></i>
+            </a>
+
+            <a href="https://www.notion.so/oreumi/NewsTwin-29bebaa8982b80d397d6cea22fa18518?source=copy_link"
+               target="_blank" class="footer-icon" title="프로젝트 소개 페이지">
+                <i class="fa-solid fa-book-open"></i>
+            </a>
+        </div>
+
+    </div>
 </footer>
