@@ -16,16 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
+
 /**
  * 마이페이지 관련 비즈니스 로직
  * - 회원 정보 조회 및 수정
@@ -56,46 +51,18 @@ public class MypageService {
         System.out.println(">>> memberName = " + dto.getMemberName());
         System.out.println(">>> password = " + dto.getPassword());
         System.out.println(">>> receiveEmail = " + dto.getReceiveEmail());
-        System.out.println(">>> profileImage = " + (dto.getProfileImage() != null ? dto.getProfileImage().getOriginalFilename() : null));
+        System.out.println(">>> profileImage = " +
+                (dto.getProfileImage() != null ? dto.getProfileImage().getOriginalFilename() : null));
 
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         boolean changed = false;
 
-        // 1) 비밀번호 변경
-        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            String encoded = passwordEncoder.encode(dto.getPassword());
-            member.updateInfo(null, encoded, null, null);
-            changed = true;
-        }
-
-        // 2) 닉네임 변경
-        if (dto.getMemberName() != null && !dto.getMemberName().isBlank()
-                && !dto.getMemberName().equals(member.getMemberName())) {
-            member.updateInfo(dto.getMemberName(), null, null, null);
-            changed = true;
-        }
-
-        // 3) 이메일 수신 여부 변경
-        if (dto.getReceiveEmail() != null && !dto.getReceiveEmail().equals(member.getReceiveEmail())) {
-            member.updateInfo(null, null, dto.getReceiveEmail(), null);
-            changed = true;
-        }
-
-
-        // 4) 프로필 이미지 최종 확정
-      if (dto.getTempImageUrl() != null && !dto.getTempImageUrl().isBlank()) {
-
-        String finalUrl = profileImageService.finalizeProfile(
-            dto.getTempImageUrl(),
-            member.getProfileImage()
-        );
-
-        member.updateInfo(null, null, null, finalUrl);
-        changed = true;
-      }
-
+        changed = updatePasswordIfNeeded(dto, member) || changed;
+        changed = updateMemberNameIfNeeded(dto, member) || changed;
+        changed = updateReceiveEmailIfNeeded(dto, member) || changed;
+        changed = updateProfileImageIfNeeded(dto, member) || changed;
 
         if (changed) {
             Member saved = memberRepository.save(member);
@@ -105,6 +72,54 @@ public class MypageService {
         }
 
         return MemberResponseDto.fromEntity(member);
+    }
+
+    /** 비밀번호 변경 처리 */
+    private boolean updatePasswordIfNeeded(MemberUpdateRequestDto dto, Member member) {
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            String encoded = passwordEncoder.encode(dto.getPassword());
+            member.updateInfo(null, encoded, null, null);
+            return true;
+        }
+        return false;
+    }
+
+    /** 닉네임 변경 처리 */
+    private boolean updateMemberNameIfNeeded(MemberUpdateRequestDto dto, Member member) {
+        if (dto.getMemberName() != null
+                && !dto.getMemberName().isBlank()
+                && !dto.getMemberName().equals(member.getMemberName())) {
+
+            member.updateInfo(dto.getMemberName(), null, null, null);
+            return true;
+        }
+        return false;
+    }
+
+    /** 이메일 수신 여부 변경 처리 */
+    private boolean updateReceiveEmailIfNeeded(MemberUpdateRequestDto dto, Member member) {
+        if (dto.getReceiveEmail() != null
+                && !dto.getReceiveEmail().equals(member.getReceiveEmail())) {
+
+            member.updateInfo(null, null, dto.getReceiveEmail(), null);
+            return true;
+        }
+        return false;
+    }
+
+    /** 프로필 이미지 변경 처리 */
+    private boolean updateProfileImageIfNeeded(MemberUpdateRequestDto dto, Member member) {
+        if (dto.getTempImageUrl() != null && !dto.getTempImageUrl().isBlank()) {
+
+            String finalUrl = profileImageService.finalizeProfile(
+                    dto.getTempImageUrl(),
+                    member.getProfileImage()
+            );
+
+            member.updateInfo(null, null, null, finalUrl);
+            return true;
+        }
+        return false;
     }
 
     /** 구독 목록 조회 */
